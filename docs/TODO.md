@@ -5,15 +5,15 @@
 - [x] Confirm Spring Boot project builds
 - [x] Configure PostgreSQL connection
 - [x] Add Docker Compose for local Postgres
-- [ ] Configure Flyway
+- [x] Configure Flyway
 
 ## Domain
 
-- [ ] Add Artist entity
-- [ ] Add ArtistAlias entity
-- [ ] Add Track entity
-- [ ] Add Flyway migration
-- [ ] Add repositories
+- [x] Add Artist entity
+- [x] Add ArtistAlias entity
+- [x] Add Track entity
+- [x] Add Flyway migration
+- [x] Add repositories
 
 ## API
 
