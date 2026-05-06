@@ -22,6 +22,8 @@ Therefore, the implementation should avoid toy choices such as:
 - Leaking persistence entities directly through the API
 - Undocumented assumptions
 
+The task describes user experiences rather than exact endpoints. I interpret the required artist-name editing behaviour as needing a minimal artist resource API, including create, retrieve, and update operations.
+
 ## Working Assumptions
 
 ### Artist aliases

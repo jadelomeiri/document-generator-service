@@ -59,6 +59,14 @@ Aliases are deliberately not treated as separate artists. This prevents duplicat
 
 Track retrieval is paginated because some artists may have very large catalogues. Even though the requirement says to fetch tracks for an artist, the API should avoid unbounded responses in a customer-facing service.
 
+## API Scope
+
+The API includes a small set of artist endpoints even though the task only explicitly mentions editing an artist name.
+
+This is intentional. Editing an artist name and adding tracks to an artist catalogue require a stable artist resource. Creating and retrieving that artist makes the service usable, testable, and easier to reason about.
+
+The API does not attempt to become a full catalogue management platform. It only includes endpoints that support the required behaviours and the alias model.
+
 ## Production Deployment Considerations
 
 For production, the natural deployment target would be a containerised Spring Boot service on AWS ECS/Fargate behind a load balancer, backed by managed PostgreSQL.

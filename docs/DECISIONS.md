@@ -69,3 +69,15 @@ Authentication is important in production, especially for write operations.
 For this exercise, it is documented as a future production concern rather than implemented, to keep the focus on the domain, API, testing, and design.
 
 In production, write operations would likely be protected through OAuth2/OIDC using the platform identity provider.
+
+## 9. Provide a small Artist API around the required behaviours
+
+The task explicitly requires editing an artist name and adding tracks to an artist catalogue. To support those behaviours cleanly, the service needs a way to create and retrieve artists as stable resources.
+
+I therefore added a small Artist API:
+
+- `POST /api/v1/artists` to create an artist
+- `GET /api/v1/artists/{artistId}` to retrieve an artist
+- `PATCH /api/v1/artists/{artistId}` to edit the artist primary name
+
+This is not intended to expand the scope into a full artist management system. It is the minimal API needed to make the required user experiences usable and testable.
