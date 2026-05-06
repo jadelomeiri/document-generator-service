@@ -24,7 +24,7 @@
 - [x] List artist aliases
 - [x] Add track to artist
 - [x] Fetch artist tracks with pagination
-- [ ] Fetch Artist of the Day
+- [x] Fetch Artist of the Day
 
 ## Production Readiness
 
