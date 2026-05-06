@@ -121,6 +121,16 @@ class ArtistControllerIntegrationTests {
 	}
 
 	@Test
+	void malformedArtistIdReturnsBadRequest() throws Exception {
+		mockMvc.perform(get("/api/v1/artists/{artistId}", "not-a-uuid"))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.title").value("Invalid path parameter"))
+				.andExpect(jsonPath("$.detail").value("Parameter 'artistId' must be a valid UUID."))
+				.andExpect(jsonPath("$.parameter").value("artistId"))
+				.andExpect(jsonPath("$.invalidValue").value("not-a-uuid"));
+	}
+
+	@Test
 	void duplicateAliasForSameArtistReturnsConflict() throws Exception {
 		UUID artistId = createArtist("Prince");
 

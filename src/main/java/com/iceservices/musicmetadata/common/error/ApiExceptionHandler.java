@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -34,6 +35,17 @@ public class ApiExceptionHandler {
 		problem.setProperty("artistId", ex.getArtistId());
 		problem.setProperty("alias", ex.getAlias());
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
+	}
+
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	ResponseEntity<ProblemDetail> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+		ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		problem.setType(URI.create("https://music-metadata-service/errors/invalid-path-parameter"));
+		problem.setTitle("Invalid path parameter");
+		problem.setDetail("Parameter '" + ex.getName() + "' must be a valid UUID.");
+		problem.setProperty("parameter", ex.getName());
+		problem.setProperty("invalidValue", ex.getValue());
+		return ResponseEntity.badRequest().body(problem);
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
