@@ -2,6 +2,7 @@ package com.iceservices.musicmetadata.common.error;
 
 import com.iceservices.musicmetadata.artist.ArtistNotFoundException;
 import com.iceservices.musicmetadata.artist.DuplicateArtistAliasException;
+import com.iceservices.musicmetadata.homepage.ArtistOfTheDayNotFoundException;
 import com.iceservices.musicmetadata.track.DuplicateTrackIsrcException;
 import jakarta.validation.ConstraintViolationException;
 import java.net.URI;
@@ -48,6 +49,15 @@ public class ApiExceptionHandler {
 		problem.setDetail("Track with ISRC '" + ex.getIsrc() + "' already exists.");
 		problem.setProperty("isrc", ex.getIsrc());
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
+	}
+
+	@ExceptionHandler(ArtistOfTheDayNotFoundException.class)
+	ResponseEntity<ProblemDetail> handleArtistOfTheDayNotFound() {
+		ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+		problem.setType(URI.create("https://music-metadata-service/errors/artist-of-the-day-not-found"));
+		problem.setTitle("Artist of the Day unavailable");
+		problem.setDetail("Artist of the Day cannot be selected because no canonical artists exist.");
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
 	}
 
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
