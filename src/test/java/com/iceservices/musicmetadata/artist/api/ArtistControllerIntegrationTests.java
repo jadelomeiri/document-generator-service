@@ -14,6 +14,7 @@ import tools.jackson.databind.json.JsonMapper;
 import com.iceservices.musicmetadata.TestcontainersConfiguration;
 import com.iceservices.musicmetadata.artist.ArtistAliasRepository;
 import com.iceservices.musicmetadata.artist.ArtistRepository;
+import com.iceservices.musicmetadata.track.TrackRepository;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,8 +43,12 @@ class ArtistControllerIntegrationTests {
 	@Autowired
 	ArtistAliasRepository artistAliasRepository;
 
+	@Autowired
+	TrackRepository trackRepository;
+
 	@BeforeEach
 	void cleanDatabase() {
+		trackRepository.deleteAll();
 		artistAliasRepository.deleteAll();
 		artistRepository.deleteAll();
 	}
@@ -58,6 +63,7 @@ class ArtistControllerIntegrationTests {
 				.andExpect(jsonPath("$.primaryName").value("Aphex Twin"))
 				.andExpect(jsonPath("$._links.self.href", containsString("/api/v1/artists/")))
 				.andExpect(jsonPath("$._links.aliases.href", containsString("/aliases")))
+				.andExpect(jsonPath("$._links.tracks.href", containsString("/tracks")))
 				.andReturn();
 
 		UUID artistId = readId(createResult);
@@ -124,8 +130,8 @@ class ArtistControllerIntegrationTests {
 	void malformedArtistIdReturnsBadRequest() throws Exception {
 		mockMvc.perform(get("/api/v1/artists/{artistId}", "not-a-uuid"))
 				.andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.title").value("Invalid request parameter"))
-				.andExpect(jsonPath("$.detail").value("Parameter 'artistId' has an invalid value."))
+				.andExpect(jsonPath("$.title").value("Invalid path parameter"))
+				.andExpect(jsonPath("$.detail").value("Parameter 'artistId' must be a valid UUID."))
 				.andExpect(jsonPath("$.parameter").value("artistId"))
 				.andExpect(jsonPath("$.invalidValue").value("not-a-uuid"));
 	}

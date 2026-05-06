@@ -42,11 +42,13 @@ A deterministic modulo-based approach ensures each artist appears once per cycle
 
 Aliases are excluded from rotation so artists with more aliases are not overrepresented.
 
-## 5. Use pagination for artist tracks
+## 5. Use page-based pagination for artist tracks
 
 The requirement says fetch tracks for an artist. In a global-scale service, unbounded responses are risky.
 
-The API returns paginated tracks to keep response sizes predictable.
+The API returns page-based paginated tracks to keep response sizes predictable and to keep the first implementation easy for clients to understand: `page=0&size=50` is explicit, simple to test, and works well for the current catalogue-management use case.
+
+Cursor or keyset pagination would be a better fit for very large catalogues or high-write traffic because it avoids deep-offset scans and is more stable when rows are inserted while a client is paging. I have not implemented it in this take-home because it would add API and query complexity before the simpler page-based approach has become a proven bottleneck. It is documented as a future P2 scalability improvement.
 
 ## 6. Use a modular monolith for the take-home
 
