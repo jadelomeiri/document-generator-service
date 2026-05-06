@@ -2,9 +2,9 @@
 
 ## Foundation
 
-- [ ] Confirm Spring Boot project builds
-- [ ] Configure PostgreSQL connection
-- [ ] Add Docker Compose for local Postgres
+- [x] Confirm Spring Boot project builds
+- [x] Configure PostgreSQL connection
+- [x] Add Docker Compose for local Postgres
 - [ ] Configure Flyway
 
 ## Domain
