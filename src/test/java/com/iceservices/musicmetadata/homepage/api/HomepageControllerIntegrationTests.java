@@ -10,10 +10,8 @@ import com.iceservices.musicmetadata.TestcontainersConfiguration;
 import com.iceservices.musicmetadata.artist.ArtistAliasRepository;
 import com.iceservices.musicmetadata.artist.ArtistRepository;
 import com.iceservices.musicmetadata.track.TrackRepository;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
+
+import java.time.*;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -201,14 +199,29 @@ class HomepageControllerIntegrationTests {
 	}
 
 	private void setCreatedAt(UUID artistId, String createdAt) {
-		jdbcTemplate.update("update artists set created_at = ?::timestamp with time zone where id = ?",
-				Instant.parse(createdAt), artistId);
+		OffsetDateTime timestamp = Instant.parse(createdAt).atOffset(ZoneOffset.UTC);
+
+		jdbcTemplate.update("""
+            update artists
+            set created_at = ?, updated_at = ?
+            where id = ?
+            """,
+				timestamp,
+				timestamp,
+				artistId);
 	}
 
 	private void insertArtist(UUID artistId, String primaryName, String createdAt) {
-		Instant timestamp = Instant.parse(createdAt);
-		jdbcTemplate.update("insert into artists (id, primary_name, created_at, updated_at) values (?, ?, ?, ?)",
-				artistId, primaryName, timestamp, timestamp);
+		OffsetDateTime timestamp = Instant.parse(createdAt).atOffset(ZoneOffset.UTC);
+
+		jdbcTemplate.update("""
+            insert into artists (id, primary_name, created_at, updated_at)
+            values (?, ?, ?, ?)
+            """,
+				artistId,
+				primaryName,
+				timestamp,
+				timestamp);
 	}
 
 	@TestConfiguration(proxyBeanMethods = false)

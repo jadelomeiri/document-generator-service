@@ -48,7 +48,9 @@ The take-home implementation uses:
 
 This avoids random selection and keeps the endpoint deterministic: the same catalogue and UTC date produce the same Artist of the Day.
 
-The implementation calculates the selection on request. In a full production system, this would likely be precomputed or cached once per UTC day so the homepage endpoint remains a cheap read and the daily artist cannot change during the day if artists are added.
+The implementation calculates the selection on request using a count plus a one-row sorted lookup rather than loading the full catalogue into memory.
+
+In a full production system, this would likely be precomputed or cached once per UTC day so the homepage endpoint remains a cheap read and the daily artist cannot change during the day if artists are added.
 
 ## Data Model Assumptions
 

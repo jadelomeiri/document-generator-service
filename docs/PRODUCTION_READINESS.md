@@ -140,7 +140,7 @@ The following are intentionally not implemented unless time allows:
 
 - Full frontend
 - User login system
-- Redis
+- Redis or distributed caching
 - OpenSearch
 - Messaging/event bus
 - Kubernetes
