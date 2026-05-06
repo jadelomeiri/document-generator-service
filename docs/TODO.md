@@ -43,3 +43,10 @@
 - [ ] Run app locally
 - [ ] Run with Docker Compose
 - [ ] Final cleanup
+
+## Reminder
+
+- [ ] Normalise blank genre to null
+- [ ] Validate positive track length at API level
+- [ ] Normalise ISRC to uppercase
+- [ ] Return duplicate ISRC as 409 Conflict

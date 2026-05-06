@@ -81,3 +81,43 @@ I therefore added a small Artist API:
 - `PATCH /api/v1/artists/{artistId}` to edit the artist primary name
 
 This is not intended to expand the scope into a full artist management system. It is the minimal API needed to make the required user experiences usable and testable.
+
+## 10. Return aliases as a bounded list but paginate tracks
+
+Alias listing is returned as a simple bounded list because alias counts are expected to be small compared with track catalogues.
+
+The working assumption is that most artists have a small number of aliases, while edge cases may have dozens. That is still a very different scale from tracks, where prolific artists can have hundreds or thousands of entries.
+
+Track retrieval is therefore paginated, while alias listing is kept simple for readability and usability.
+
+## 11. Use lightweight HATEOAS rather than full hypermedia modelling
+
+I used lightweight HATEOAS links rather than fully modelling responses around Spring HATEOAS `RepresentationModel` or `EntityModel`.
+
+The goal was to improve API discoverability without making hypermedia the focus of the take-home.
+
+The implementation keeps `_links` in responses and uses Spring HATEOAS link building where useful, but avoids adding extra framework ceremony where explicit response records are easier to read and explain.
+
+## 12. Treat aliases as unique per artist, not globally unique
+
+The same artist cannot have the same alias twice. This is enforced case-insensitively per artist.
+
+Different artists can theoretically have the same alias or display name. Real-world music metadata can be messy, and global uniqueness on artist names or aliases would be too strict for this task.
+
+This is why the unique alias constraint is scoped to `(artist_id, lower(alias_name))` rather than `lower(alias_name)` globally.
+
+## 13. Keep genre optional
+
+Music genres are messy, subjective, and often multi-valued.
+
+For this task, I modelled `genre` as an optional simple string rather than trying to build a full genre taxonomy or many-to-many genre model.
+
+The API should avoid storing blank genre values. If a blank genre is submitted, it should be normalised to `null`.
+
+## 14. Validate at the API layer and protect at the database layer
+
+Request validation should happen at the API boundary so clients get clear, friendly errors.
+
+The database still enforces important invariants such as non-blank names, positive track length, valid ISRC format, and uniqueness constraints.
+
+This gives a better developer experience while still protecting data integrity if bad data reaches the persistence layer.
