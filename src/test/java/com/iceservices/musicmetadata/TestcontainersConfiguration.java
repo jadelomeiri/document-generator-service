@@ -15,7 +15,7 @@ class TestcontainersConfiguration {
 	@Bean
 	@ServiceConnection
 	PostgreSQLContainer postgresContainer() {
-		return new PostgreSQLContainer<>(POSTGRES_IMAGE)
+		return new PostgreSQLContainer(POSTGRES_IMAGE);
 	}
 
 }
