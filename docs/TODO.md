@@ -17,10 +17,11 @@
 
 ## API
 
-- [ ] Create artist
-- [ ] Get artist
-- [ ] Update artist primary name
-- [ ] Add artist alias
+- [x] Create artist
+- [x] Get artist
+- [x] Update artist primary name
+- [x] Add artist alias
+- [x] List artist aliases
 - [ ] Add track to artist
 - [ ] Fetch artist tracks with pagination
 - [ ] Fetch Artist of the Day
@@ -42,3 +43,10 @@
 - [ ] Run app locally
 - [ ] Run with Docker Compose
 - [ ] Final cleanup
+
+## Reminder
+
+- [ ] Normalise blank genre to null
+- [ ] Validate positive track length at API level
+- [ ] Normalise ISRC to uppercase
+- [ ] Return duplicate ISRC as 409 Conflict
