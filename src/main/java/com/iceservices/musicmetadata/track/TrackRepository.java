@@ -8,4 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface TrackRepository extends JpaRepository<Track, UUID> {
 
 	Page<Track> findByArtistId(UUID artistId, Pageable pageable);
+
+	boolean existsByIsrc(String isrc);
 }

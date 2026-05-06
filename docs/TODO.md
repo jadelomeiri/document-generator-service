@@ -22,8 +22,8 @@
 - [x] Update artist primary name
 - [x] Add artist alias
 - [x] List artist aliases
-- [ ] Add track to artist
-- [ ] Fetch artist tracks with pagination
+- [x] Add track to artist
+- [x] Fetch artist tracks with pagination
 - [ ] Fetch Artist of the Day
 
 ## Production Readiness
@@ -46,7 +46,7 @@
 
 ## Reminder
 
-- [ ] Normalise blank genre to null
-- [ ] Validate positive track length at API level
-- [ ] Normalise ISRC to uppercase
-- [ ] Return duplicate ISRC as 409 Conflict
+- [x] Normalise blank genre to null
+- [x] Validate positive track length at API level
+- [x] Normalise ISRC to uppercase
+- [x] Return duplicate ISRC as 409 Conflict

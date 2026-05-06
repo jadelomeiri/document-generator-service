@@ -72,7 +72,8 @@ public class ArtistController {
 				artist.getUpdatedAt(),
 				Map.of(
 						"self", new LinkResponse(artistUri(artistId)),
-						"aliases", new LinkResponse(artistAliasesUri(artistId))));
+						"aliases", new LinkResponse(artistAliasesUri(artistId)),
+						"tracks", new LinkResponse(artistTracksUri(artistId))));
 	}
 
 	private ArtistAliasResponse toAliasResponse(ArtistAlias alias, UUID artistId) {
@@ -95,6 +96,14 @@ public class ArtistController {
 		return linkTo(ArtistController.class)
 				.slash(artistId)
 				.slash("aliases")
+				.toUri()
+				.toString();
+	}
+
+	private String artistTracksUri(UUID artistId) {
+		return linkTo(ArtistController.class)
+				.slash(artistId)
+				.slash("tracks")
 				.toUri()
 				.toString();
 	}

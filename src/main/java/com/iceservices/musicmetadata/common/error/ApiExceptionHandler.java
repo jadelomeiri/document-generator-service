@@ -2,18 +2,19 @@ package com.iceservices.musicmetadata.common.error;
 
 import com.iceservices.musicmetadata.artist.ArtistNotFoundException;
 import com.iceservices.musicmetadata.artist.DuplicateArtistAliasException;
+import com.iceservices.musicmetadata.track.DuplicateTrackIsrcException;
+import jakarta.validation.ConstraintViolationException;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import org.hibernate.validator.constraints.UUID;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -39,6 +40,16 @@ public class ApiExceptionHandler {
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
 	}
 
+	@ExceptionHandler(DuplicateTrackIsrcException.class)
+	ResponseEntity<ProblemDetail> handleDuplicateTrackIsrc(DuplicateTrackIsrcException ex) {
+		ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+		problem.setType(URI.create("https://music-metadata-service/errors/duplicate-track-isrc"));
+		problem.setTitle("Duplicate track ISRC");
+		problem.setDetail("Track with ISRC '" + ex.getIsrc() + "' already exists.");
+		problem.setProperty("isrc", ex.getIsrc());
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
+	}
+
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
 	ResponseEntity<ProblemDetail> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
 		ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
@@ -61,10 +72,7 @@ public class ApiExceptionHandler {
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	ResponseEntity<ProblemDetail> handleValidation(MethodArgumentNotValidException ex) {
-		ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-		problem.setType(URI.create("https://music-metadata-service/errors/validation-failed"));
-		problem.setTitle("Validation failed");
-		problem.setDetail("Request validation failed.");
+		ProblemDetail problem = validationProblem();
 
 		Map<String, String> errors = new LinkedHashMap<>();
 		ex.getBindingResult().getFieldErrors().forEach(error ->
@@ -72,5 +80,23 @@ public class ApiExceptionHandler {
 		problem.setProperty("errors", errors);
 
 		return ResponseEntity.badRequest().body(problem);
+	}
+
+	@ExceptionHandler(ConstraintViolationException.class)
+	ResponseEntity<ProblemDetail> handleConstraintViolation(ConstraintViolationException ex) {
+		ProblemDetail problem = validationProblem();
+		Map<String, String> errors = new LinkedHashMap<>();
+		ex.getConstraintViolations().forEach(violation ->
+				errors.putIfAbsent(violation.getPropertyPath().toString(), violation.getMessage()));
+		problem.setProperty("errors", errors);
+		return ResponseEntity.badRequest().body(problem);
+	}
+
+	private ProblemDetail validationProblem() {
+		ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		problem.setType(URI.create("https://music-metadata-service/errors/validation-failed"));
+		problem.setTitle("Validation failed");
+		problem.setDetail("Request validation failed.");
+		return problem;
 	}
 }
