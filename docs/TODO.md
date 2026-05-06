@@ -17,10 +17,11 @@
 
 ## API
 
-- [ ] Create artist
-- [ ] Get artist
-- [ ] Update artist primary name
-- [ ] Add artist alias
+- [x] Create artist
+- [x] Get artist
+- [x] Update artist primary name
+- [x] Add artist alias
+- [x] List artist aliases
 - [ ] Add track to artist
 - [ ] Fetch artist tracks with pagination
 - [ ] Fetch Artist of the Day
