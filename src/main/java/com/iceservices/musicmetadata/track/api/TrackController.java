@@ -45,7 +45,7 @@ public class TrackController {
 				request.genre(),
 				request.lengthSeconds(),
 				request.isrc());
-		TrackResponse response = toTrackResponse(track);
+		TrackResponse response = toTrackResponse(track, artistId);
 		return ResponseEntity.created(URI.create(tracksUri(artistId))).body(response);
 	}
 
@@ -58,7 +58,7 @@ public class TrackController {
 		Page<Track> tracks = trackService.listTracks(artistId, page, size);
 		return new TrackListResponse(
 				artistId,
-				tracks.getContent().stream().map(this::toTrackResponse).toList(),
+				tracks.getContent().stream().map(track -> toTrackResponse(track, artistId)).toList(),
 				new TrackListResponse.PageMetadata(
 						tracks.getNumber(),
 						tracks.getSize(),
@@ -67,8 +67,7 @@ public class TrackController {
 				listLinks(artistId, tracks));
 	}
 
-	private TrackResponse toTrackResponse(Track track) {
-		UUID artistId = track.getArtist().getId();
+	private TrackResponse toTrackResponse(Track track, UUID artistId) {
 		return new TrackResponse(
 				track.getId(),
 				artistId,
