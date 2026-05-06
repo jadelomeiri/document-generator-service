@@ -5,6 +5,8 @@ import com.iceservices.musicmetadata.artist.DuplicateArtistAliasException;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.hibernate.validator.constraints.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -40,11 +42,20 @@ public class ApiExceptionHandler {
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
 	ResponseEntity<ProblemDetail> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
 		ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-		problem.setType(URI.create("https://music-metadata-service/errors/invalid-path-parameter"));
-		problem.setTitle("Invalid path parameter");
-		problem.setDetail("Parameter '" + ex.getName() + "' must be a valid UUID.");
+		problem.setType(URI.create("https://music-metadata-service/errors/invalid-request-parameter"));
+
 		problem.setProperty("parameter", ex.getName());
 		problem.setProperty("invalidValue", ex.getValue());
+
+		if (ex.getRequiredType() == UUID.class) {
+			problem.setTitle("Invalid path parameter");
+			problem.setDetail("Parameter '" + ex.getName() + "' must be a valid UUID.");
+		}
+		else {
+			problem.setTitle("Invalid request parameter");
+			problem.setDetail("Parameter '" + ex.getName() + "' has an invalid value.");
+		}
+
 		return ResponseEntity.badRequest().body(problem);
 	}
 

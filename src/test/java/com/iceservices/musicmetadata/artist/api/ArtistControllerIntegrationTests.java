@@ -9,8 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 import com.iceservices.musicmetadata.TestcontainersConfiguration;
 import com.iceservices.musicmetadata.artist.ArtistAliasRepository;
 import com.iceservices.musicmetadata.artist.ArtistRepository;
@@ -18,7 +18,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -26,7 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 @Import(TestcontainersConfiguration.class)
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 class ArtistControllerIntegrationTests {
 
@@ -34,7 +34,7 @@ class ArtistControllerIntegrationTests {
 	MockMvc mockMvc;
 
 	@Autowired
-	ObjectMapper objectMapper;
+	JsonMapper jsonMapper;
 
 	@Autowired
 	ArtistRepository artistRepository;
@@ -124,8 +124,8 @@ class ArtistControllerIntegrationTests {
 	void malformedArtistIdReturnsBadRequest() throws Exception {
 		mockMvc.perform(get("/api/v1/artists/{artistId}", "not-a-uuid"))
 				.andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.title").value("Invalid path parameter"))
-				.andExpect(jsonPath("$.detail").value("Parameter 'artistId' must be a valid UUID."))
+				.andExpect(jsonPath("$.title").value("Invalid request parameter"))
+				.andExpect(jsonPath("$.detail").value("Parameter 'artistId' has an invalid value."))
 				.andExpect(jsonPath("$.parameter").value("artistId"))
 				.andExpect(jsonPath("$.invalidValue").value("not-a-uuid"));
 	}
@@ -181,7 +181,7 @@ class ArtistControllerIntegrationTests {
 	}
 
 	private UUID readId(MvcResult result) throws Exception {
-		JsonNode json = objectMapper.readTree(result.getResponse().getContentAsString());
+		JsonNode json = jsonMapper.readTree(result.getResponse().getContentAsString());
 		return UUID.fromString(json.get("id").asText());
 	}
 }

@@ -1,7 +1,6 @@
 package com.iceservices.musicmetadata.artist.api;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import com.iceservices.musicmetadata.artist.Artist;
 import com.iceservices.musicmetadata.artist.ArtistAlias;
@@ -53,8 +52,7 @@ public class ArtistController {
 			@Valid @RequestBody CreateArtistAliasRequest request) {
 		ArtistAlias alias = artistService.addAlias(artistId, request.alias());
 		ArtistAliasResponse response = toAliasResponse(alias, artistId);
-		return ResponseEntity.created(URI.create(linkTo(methodOn(ArtistController.class)
-				.listAliases(artistId)).toUri().toString())).body(response);
+		return ResponseEntity.created(URI.create(artistAliasesUri(artistId))).body(response);
 	}
 
 	@GetMapping("/{artistId}/aliases")
@@ -73,8 +71,8 @@ public class ArtistController {
 				artist.getCreatedAt(),
 				artist.getUpdatedAt(),
 				Map.of(
-						"self", new LinkResponse(linkTo(methodOn(ArtistController.class).getArtist(artistId)).toUri().toString()),
-						"aliases", new LinkResponse(linkTo(methodOn(ArtistController.class).listAliases(artistId)).toUri().toString())));
+						"self", new LinkResponse(artistUri(artistId)),
+						"aliases", new LinkResponse(artistAliasesUri(artistId))));
 	}
 
 	private ArtistAliasResponse toAliasResponse(ArtistAlias alias, UUID artistId) {
@@ -84,5 +82,20 @@ public class ArtistController {
 				alias.getAliasName(),
 				alias.getCreatedAt(),
 				alias.getUpdatedAt());
+	}
+
+	private String artistUri(UUID artistId) {
+		return linkTo(ArtistController.class)
+				.slash(artistId)
+				.toUri()
+				.toString();
+	}
+
+	private String artistAliasesUri(UUID artistId) {
+		return linkTo(ArtistController.class)
+				.slash(artistId)
+				.slash("aliases")
+				.toUri()
+				.toString();
 	}
 }
