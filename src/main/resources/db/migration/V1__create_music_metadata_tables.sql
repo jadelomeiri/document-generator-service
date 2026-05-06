@@ -21,12 +21,15 @@ CREATE TABLE tracks (
     id UUID PRIMARY KEY,
     artist_id UUID NOT NULL,
     title VARCHAR(255) NOT NULL,
+    genre VARCHAR(100),
+    length_seconds INTEGER NOT NULL,
     isrc VARCHAR(12),
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL,
     CONSTRAINT tracks_artist_fk
         FOREIGN KEY (artist_id) REFERENCES artists (id) ON DELETE CASCADE,
     CONSTRAINT tracks_title_not_blank CHECK (length(btrim(title)) > 0),
+    CONSTRAINT tracks_length_seconds_positive CHECK (length_seconds > 0),
     CONSTRAINT tracks_isrc_format CHECK (isrc IS NULL OR isrc ~ '^[A-Z]{2}[A-Z0-9]{3}[0-9]{7}$')
 );
 

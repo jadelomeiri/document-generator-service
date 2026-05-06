@@ -33,6 +33,12 @@ public class Track {
 	@Column(nullable = false, length = 255)
 	private String title;
 
+	@Column(length = 100)
+	private String genre;
+
+	@Column(name = "length_seconds", nullable = false)
+	private int lengthSeconds;
+
 	@Column(length = 12)
 	private String isrc;
 
@@ -45,9 +51,11 @@ public class Track {
 	protected Track() {
 	}
 
-	public Track(Artist artist, String title, String isrc) {
+	public Track(Artist artist, String title, String genre, int lengthSeconds, String isrc) {
 		this.artist = artist;
 		this.title = title;
+		this.genre = genre;
+		this.lengthSeconds = lengthSeconds;
 		this.isrc = isrc;
 	}
 
@@ -65,6 +73,22 @@ public class Track {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public String getGenre() {
+		return genre;
+	}
+
+	public void setGenre(String genre) {
+		this.genre = genre;
+	}
+
+	public int getLengthSeconds() {
+		return lengthSeconds;
+	}
+
+	public void setLengthSeconds(int lengthSeconds) {
+		this.lengthSeconds = lengthSeconds;
 	}
 
 	public String getIsrc() {
