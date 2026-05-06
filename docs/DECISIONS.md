@@ -36,11 +36,86 @@ This preserves artist identity even when names change.
 
 ## 4. Use deterministic Artist of the Day rotation
 
-Random selection does not guarantee fair rotation.
+The service needs to return one Artist of the Day in a way that is fair, predictable, and easy to test.
 
-A deterministic modulo-based approach ensures each artist appears once per cycle.
+For the take-home, I chose a deterministic daily rotation:
 
-Aliases are excluded from rotation so artists with more aliases are not overrepresented.
+- Sort canonical artists by `created_at ASC, id ASC`
+- Calculate the number of UTC days since a fixed epoch date
+- Select `daysSinceEpoch % artistCount`
+
+This means the same artist is returned for all users on the same UTC day, aliases do not increase an artist's chance of being selected, and the behaviour can be tested by injecting a `Clock`.
+
+### Why modulo rotation
+
+Modulo rotation lets the service derive the selected artist from the date without storing a mutable pointer.
+
+Given a stable sorted list of artists, `daysSinceEpoch % artistCount` naturally cycles through the catalogue and wraps back to the first artist after the last artist.
+
+For example, with five artists:
+
+- day 0 selects index 0
+- day 1 selects index 1
+- day 2 selects index 2
+- day 3 selects index 3
+- day 4 selects index 4
+- day 5 wraps back to index 0
+
+This keeps the take-home implementation deterministic, fair, stateless, and easy to reason about.
+
+### Alternatives considered
+
+#### Random selection per request
+
+This is simple, but not stable or fair. Different users could see different artists on the same day, and some artists could be selected repeatedly while others are skipped.
+
+I rejected this because the requirement is for a cyclical Artist of the Day, not a random artist recommendation.
+
+#### Random selection once per day
+
+This would be stable for a day if stored, but it still would not guarantee fair rotation through the catalogue.
+
+I rejected this because deterministic rotation better matches the fairness requirement.
+
+#### Stored pointer / simple iteration
+
+Another option would be to store the last selected artist and move to the next artist each day.
+
+I did not choose this for the take-home because it introduces mutable state, scheduling, and concurrency questions: where the pointer is stored, what happens if the job fails, and how multiple app instances coordinate updates.
+
+Modulo rotation avoids those concerns by deriving the selected artist from the date.
+
+#### Precomputed daily selection
+
+A production system could store the selected artist for each UTC date in an `artist_of_the_day` table.
+
+This would make the homepage endpoint a cheap read and would prevent today's selected artist changing if artists are added later in the day.
+
+I did not implement this in the take-home because it adds scheduling and persistence complexity beyond the core requirement. I would treat it as the next production improvement.
+
+#### Weighted or editorial selection
+
+A real streaming platform might eventually choose artists based on popularity, territory, genre, campaigns, or editorial rules.
+
+I rejected this for the take-home because it changes the requirement from fair cyclical rotation into a product recommendation or promotion problem.
+
+### Handling newly added artists
+
+With the take-home implementation, newly added artists can change the modulo calculation because the total artist count changes.
+
+That means today's selected artist could theoretically change if a new artist is added during the same UTC day.
+
+That is acceptable for this time-boxed implementation, but in production I would avoid the selected artist changing during the UTC day by storing the daily selection once computed.
+
+New artists would then enter the rotation from the next computed day onward.
+
+### Caching decision
+
+I did not add Redis or a distributed cache in the take-home implementation because that would add infrastructure complexity beyond the core task.
+
+In production, this endpoint is a strong candidate for daily caching or precomputation because the result is the same for every user on the same UTC day.
+
+A production version could store the selected artist for each date in an `artist_of_the_day` table or cache the result until the next UTC midnight.
 
 ## 5. Use page-based pagination for artist tracks
 

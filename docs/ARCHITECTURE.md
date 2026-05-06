@@ -35,13 +35,20 @@ Represents track metadata belonging to an artist.
 
 ## Artist of the Day
 
-The daily artist is selected using deterministic rotation:
+The daily artist is selected using deterministic rotation over canonical artists only.
 
-1. Load canonical artists in stable order
-2. Calculate the number of UTC days since a fixed epoch
-3. Select `daysSinceEpoch % artistCount`
+Aliases are deliberately excluded from the rotation so that artists with many aliases are not overrepresented.
 
-This avoids randomness and guarantees fair cyclical rotation.
+The take-home implementation uses:
+
+1. Canonical artists sorted by `created_at ASC, id ASC`
+2. UTC date from an injectable `Clock`
+3. A fixed epoch date
+4. `daysSinceEpoch % artistCount` to select the daily artist
+
+This avoids random selection and keeps the endpoint deterministic: the same catalogue and UTC date produce the same Artist of the Day.
+
+The implementation calculates the selection on request. In a full production system, this would likely be precomputed or cached once per UTC day so the homepage endpoint remains a cheap read and the daily artist cannot change during the day if artists are added.
 
 ## Data Model Assumptions
 

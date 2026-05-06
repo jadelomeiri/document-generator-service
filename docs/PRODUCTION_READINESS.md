@@ -107,7 +107,7 @@ These are realistic production concerns, but outside the time-boxed take-home im
 
 ### Scalability
 
-- Redis or CDN caching for Artist of the Day
+- Daily cache or precomputed `artist_of_the_day` table for Artist of the Day
 - Read replicas for high-volume reads
 - Cursor/keyset pagination for very large catalogues
 - OpenSearch for fuzzy artist, alias, and track search
