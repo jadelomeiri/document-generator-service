@@ -251,3 +251,15 @@ Alternatives considered:
 - Layer-first packages such as `controller`, `service`, and `repository`: simple at first, but they tend to scatter each feature across the project as the code grows. Package-by-feature gives better locality while staying lightweight.
 
 This keeps package hygiene pragmatic: shared contracts are clearly shared, feature code remains cohesive, and the project avoids a heavier architecture structure that would be disproportionate for this take-home.
+
+## 21. Future improvement: artist discovery endpoint
+
+The current API uses stable UUIDs as canonical artist identifiers. This keeps artist identity safe even when names or aliases change, but it means clients need to know an artist ID before fetching or updating that artist.
+
+A natural next improvement would be a paginated artist discovery endpoint, for example:
+
+`GET /api/v1/artists?query=armin&page=0&size=20`
+
+This would allow clients to search by human-readable artist names or aliases, then follow `_links.self`, `_links.aliases`, and `_links.tracks` to the canonical UUID-based resources.
+
+I did not implement slug-based URLs such as `/api/v1/artists/armin-van-buren` because artist names and aliases are not guaranteed to be unique or stable. Slugs would require collision handling, redirects, and product rules around renames and aliases.
