@@ -34,7 +34,8 @@
 - [x] Prometheus metrics endpoint
 - [x] OpenAPI / Swagger docs
 - [x] Tests with Testcontainers
-- [ ] Dockerfile
+- [x] Dockerfile
+- [x] Docker Compose app + database support
 - [x] GitHub Actions CI
 - [x] Lightweight Checkstyle
 - [x] Dependabot
@@ -47,6 +48,7 @@
 - [x] Run tests
 - [x] Run app locally with `SPRING_PROFILES_ACTIVE=local`
 - [x] Run PostgreSQL locally with Docker Compose
+- [ ] Run app and PostgreSQL together with Docker Compose
 - [x] Verify Actuator health/readiness/liveness/prometheus endpoints
 - [ ] Final cleanup
 
@@ -57,3 +59,7 @@
 - [x] Normalise ISRC to uppercase
 - [x] Return duplicate ISRC as 409 Conflict
 - [ ] Consider renaming `GET /api/v1/homepage/artist-of-the-day`
+
+## Notes
+
+- Docker image builds use `./gradlew clean bootJar --no-daemon` rather than running tests because CI owns the full `./gradlew clean build --no-daemon` gate, including Testcontainers-backed tests.

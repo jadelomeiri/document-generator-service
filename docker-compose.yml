@@ -1,4 +1,21 @@
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/music_metadata
+      SPRING_DATASOURCE_USERNAME: music
+      SPRING_DATASOURCE_PASSWORD: music
+      SERVER_PORT: 8080
+      JAVA_OPTS: ${JAVA_OPTS:-}
+
   postgres:
     image: postgres:18
     container_name: ice-music-metadata-postgres
