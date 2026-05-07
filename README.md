@@ -214,7 +214,7 @@ Flyway owns schema creation and Hibernate is configured to validate rather than 
 - **Problem Details-style errors**: common failure cases return structured error bodies rather than ad hoc strings.
 - **Docker image builds package only**: the image build uses `bootJar` for speed and reproducibility, while CI is the authoritative full clean build/test gate.
 
-More detailed reasoning is captured in `docs/ARCHITECTURE.md`, `docs/DECISIONS.md`, and `docs/PRODUCTION_READINESS.md`.
+More detailed reasoning is captured in `docs/ARCHITECTURE.md`, `docs/DECISIONS.md`, and `docs/PRODUCTION_READINESS.md`. Reviewer-friendly Mermaid diagrams and presentation notes are available in `docs/DIAGRAMS.md`.
 
 ## 11. Production-readiness notes
 
