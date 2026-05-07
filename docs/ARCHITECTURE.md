@@ -12,10 +12,22 @@ The implementation is intentionally a modular monolith. The current domain is sm
 
 - Artist API: create artists, update primary names, manage aliases
 - Track API: add tracks and fetch tracks for an artist
-- Homepage API: return Artist of the Day
+  Homepage API: return the deterministic Artist of the Day
 - Persistence: PostgreSQL with Flyway migrations
 - API documentation: OpenAPI / Swagger
-- Observability: Spring Boot Actuator and Prometheus metrics endpoint
+- Observability: Spring Boot Actuator health/probes, info, and Prometheus metrics endpoint
+- Configuration: common, local, and production-like Spring profiles
+- Delivery: GitHub Actions CI, Checkstyle, Dependabot, and Testcontainers-backed tests
+
+## Runtime Configuration
+
+The application uses Spring profile-specific configuration:
+
+- common configuration for safe defaults shared by all environments
+- `local` profile for Docker Compose-friendly PostgreSQL defaults
+- `prod` profile for production-like runs where datasource values must be supplied through environment variables
+
+This keeps the same application artefact deployable across environments while avoiding committed production credentials.
 
 ## Data Model
 
@@ -76,6 +88,14 @@ This is intentional. Editing an artist name and adding tracks to an artist catal
 
 The API does not attempt to become a full catalogue management platform. It only includes endpoints that support the required behaviours and the alias model.
 
+## Testing and Delivery
+
+The project includes Testcontainers-backed integration tests using PostgreSQL rather than an in-memory database.
+
+This gives confidence that Flyway migrations, PostgreSQL-specific constraints, repository behaviour, and API flows work against the same class of database used by the application.
+
+GitHub Actions CI runs `./gradlew clean build`, which covers compilation, Checkstyle, tests, and packaging. A lightweight Checkstyle configuration is used for basic code hygiene, and Dependabot is enabled for Gradle and GitHub Actions dependency maintenance.
+
 ## Production Deployment Considerations
 
 For production, the natural deployment target would be a containerised Spring Boot service on AWS ECS/Fargate behind a load balancer, backed by managed PostgreSQL.
@@ -90,3 +110,19 @@ Future production additions could include:
 - OpenTofu for infrastructure provisioning
 
 These are documented as future evolutions rather than implemented in the take-home scope.
+
+## Observability
+
+The service uses Spring Boot Actuator and Micrometer/Prometheus for operational visibility.
+
+The common and production-like configuration expose a limited set of Actuator endpoints:
+
+- `/actuator/health`
+- `/actuator/health/liveness`
+- `/actuator/health/readiness`
+- `/actuator/info`
+- `/actuator/prometheus`
+
+Health details are hidden by default and in production-like runs. The local profile exposes additional metrics and health details to support developer troubleshooting.
+
+The Prometheus endpoint includes application-level tags so metrics can be identified by service name.

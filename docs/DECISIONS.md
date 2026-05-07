@@ -61,7 +61,7 @@ For example, with five artists:
 - day 4 selects index 4
 - day 5 wraps back to index 0
 
-This keeps the take-home implementation deterministic, fair, stateless, and easy to reason about.
+This keeps the take-home implementation deterministic, fair across the current canonical artist set, stateless, and easy to reason about.
 
 ### Alternatives considered
 
@@ -198,3 +198,43 @@ Request validation should happen at the API boundary so clients get clear, frien
 The database still enforces important invariants such as non-blank names, positive track length, valid ISRC format, and uniqueness constraints.
 
 This gives a better developer experience while still protecting data integrity if bad data reaches the persistence layer.
+
+## 15. Use profile-specific configuration
+
+The application uses common, local, and production-like Spring configuration.
+
+Common configuration contains safe defaults shared by all environments. The `local` profile keeps Docker Compose-friendly datasource defaults for developer convenience. The `prod` profile requires datasource values from environment variables and does not contain committed fallback credentials.
+
+This keeps the same application artefact deployable in different environments while avoiding production secrets in source control.
+
+## 16. Expose limited Actuator endpoints
+
+Actuator is included for operational visibility, but endpoint exposure is intentionally limited.
+
+Common and production-like configuration expose `health`, `info`, and `prometheus`. The local profile additionally exposes `metrics` to make development troubleshooting easier.
+
+Health details are hidden by default and in production-like runs, but shown locally. Liveness and readiness probes are enabled to support container-orchestrated deployments.
+
+## 17. Use Testcontainers-backed integration tests
+
+Integration tests use PostgreSQL through Testcontainers rather than an in-memory database.
+
+This gives higher confidence that Flyway migrations, database constraints, PostgreSQL-specific column types, indexes, and repository behaviour work against the same class of database used by the application.
+
+For this task, integration tests are more valuable than broad mocked unit tests because most important behaviours cross the API, validation, service, persistence, and migration boundaries.
+
+## 18. Add lightweight CI and code quality gates
+
+The repository includes GitHub Actions CI running `./gradlew clean build`, which exercises compilation, Checkstyle, tests, and packaging.
+
+A lightweight Checkstyle setup is used to enforce basic maintainability hygiene without introducing a noisy enterprise rule set. Dependabot is enabled for Gradle dependencies and GitHub Actions to keep dependency maintenance visible.
+
+Heavier tools such as Sonar, SpotBugs, PMD, security scans, and coverage thresholds are intentionally left as future production improvements.
+
+## 19. Use OpenAPI and API examples instead of a frontend
+
+The task asks for a user-friendly way to access metadata, but the role and exercise are backend-focused.
+
+I chose to provide OpenAPI / Swagger documentation, clear REST endpoints, validation errors, and lightweight HATEOAS links rather than building a separate frontend.
+
+This keeps the submission focused on backend design, correctness, testing, and production readiness while still making the API easy to explore.
