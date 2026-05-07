@@ -44,7 +44,7 @@ These are required for a credible submission.
 
 ### Testing
 
-- Unit tests for Artist of the Day rotation
+- Unit/service tests for Artist of the Day rotation, service-level normalisation, and exception mapping
 - API/integration tests for main user flows
 - Testcontainers-backed PostgreSQL tests where useful
 
