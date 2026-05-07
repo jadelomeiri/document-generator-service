@@ -238,3 +238,16 @@ The task asks for a user-friendly way to access metadata, but the role and exerc
 I chose to provide OpenAPI / Swagger documentation, clear REST endpoints, validation errors, and lightweight HATEOAS links rather than building a separate frontend.
 
 This keeps the submission focused on backend design, correctness, testing, and production readiness while still making the API easy to explore.
+
+## 20. Keep package-by-feature with a small shared API package
+
+The codebase is organised mainly by feature: `artist`, `track`, and `homepage`, with narrow `api` subpackages for request and response contracts.
+
+I kept this package-by-feature structure because it makes the take-home easy to read and keeps related controller, service, repository, and model code close together. Small shared API records, such as response link DTOs used by multiple features, belong in `common.api` so feature packages do not accidentally depend on another feature's API package for generic response shapes.
+
+Alternatives considered:
+
+- Full clean / hexagonal architecture: useful for larger systems with multiple adapters, complex domain workflows, or a need to isolate business logic from several delivery mechanisms. I did not introduce it here because it would add package ceremony without changing the service behaviour or improving the core artist, alias, and track model for this scoped exercise.
+- Layer-first packages such as `controller`, `service`, and `repository`: simple at first, but they tend to scatter each feature across the project as the code grows. Package-by-feature gives better locality while staying lightweight.
+
+This keeps package hygiene pragmatic: shared contracts are clearly shared, feature code remains cohesive, and the project avoids a heavier architecture structure that would be disproportionate for this take-home.

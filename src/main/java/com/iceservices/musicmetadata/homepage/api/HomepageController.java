@@ -5,7 +5,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import com.iceservices.musicmetadata.artist.Artist;
 import com.iceservices.musicmetadata.artist.api.ArtistController;
 import com.iceservices.musicmetadata.artist.api.ArtistResponse;
-import com.iceservices.musicmetadata.artist.api.LinkResponse;
+import com.iceservices.musicmetadata.common.api.LinkResponse;
 import com.iceservices.musicmetadata.homepage.ArtistOfTheDayService;
 import java.util.Map;
 import java.util.UUID;

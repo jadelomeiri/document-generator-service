@@ -3,7 +3,7 @@ package com.iceservices.musicmetadata.track.api;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 import com.iceservices.musicmetadata.artist.api.ArtistController;
-import com.iceservices.musicmetadata.artist.api.LinkResponse;
+import com.iceservices.musicmetadata.common.api.LinkResponse;
 import com.iceservices.musicmetadata.track.Track;
 import com.iceservices.musicmetadata.track.TrackService;
 import jakarta.validation.Valid;
