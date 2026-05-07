@@ -28,20 +28,26 @@
 
 ## Production Readiness
 
-- [ ] Validation
-- [ ] Problem Details-style errors
-- [ ] Actuator health
-- [ ] OpenAPI docs
-- [ ] Tests with Testcontainers
+- [x] Validation
+- [x] Problem Details-style errors
+- [x] Actuator health and probes
+- [x] Prometheus metrics endpoint
+- [x] OpenAPI / Swagger docs
+- [x] Tests with Testcontainers
 - [ ] Dockerfile
-- [ ] README run instructions
+- [x] GitHub Actions CI
+- [x] Lightweight Checkstyle
+- [x] Dependabot
+- [x] Environment-specific configuration
+- [x] README run instructions
 
 ## Final
 
-- [ ] Review docs
-- [ ] Run tests
-- [ ] Run app locally
-- [ ] Run with Docker Compose
+- [ ] Final documentation review
+- [x] Run tests
+- [x] Run app locally with `SPRING_PROFILES_ACTIVE=local`
+- [x] Run PostgreSQL with Docker Compose
+- [x] Verify Actuator health/readiness/liveness/prometheus endpoints
 - [ ] Final cleanup
 
 ## Reminder
@@ -50,4 +56,4 @@
 - [x] Validate positive track length at API level
 - [x] Normalise ISRC to uppercase
 - [x] Return duplicate ISRC as 409 Conflict
-- [ ] Consider renaming `GET /api/v1/homepage/artist-of-the-day` 
+- [ ] Consider renaming `GET /api/v1/homepage/artist-of-the-day`
