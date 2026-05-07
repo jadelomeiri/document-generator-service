@@ -42,8 +42,7 @@ public class TrackService {
 					normaliseOptionalText(genre),
 					lengthSeconds,
 					normalisedIsrc));
-		}
-		catch (DataIntegrityViolationException ex) {
+		} catch (DataIntegrityViolationException ex) {
 			if (normalisedIsrc != null) {
 				throw new DuplicateTrackIsrcException(normalisedIsrc);
 			}

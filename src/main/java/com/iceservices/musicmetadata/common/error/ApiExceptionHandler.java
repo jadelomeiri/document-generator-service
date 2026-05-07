@@ -71,8 +71,7 @@ public class ApiExceptionHandler {
 		if (ex.getRequiredType() == UUID.class) {
 			problem.setTitle("Invalid path parameter");
 			problem.setDetail("Parameter '" + ex.getName() + "' must be a valid UUID.");
-		}
-		else {
+		} else {
 			problem.setTitle("Invalid request parameter");
 			problem.setDetail("Parameter '" + ex.getName() + "' has an invalid value.");
 		}
