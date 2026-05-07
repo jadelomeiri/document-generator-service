@@ -46,8 +46,7 @@ public class ArtistService {
 
 		try {
 			return artistAliasRepository.saveAndFlush(new ArtistAlias(artist, normalisedAlias));
-		}
-		catch (DataIntegrityViolationException ex) {
+		} catch (DataIntegrityViolationException ex) {
 			throw new DuplicateArtistAliasException(artistId, normalisedAlias);
 		}
 	}

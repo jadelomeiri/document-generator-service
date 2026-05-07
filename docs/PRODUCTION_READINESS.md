@@ -73,18 +73,25 @@ These are valuable production-readiness improvements, but should not block the c
 
 ### CI/CD
 
-- GitHub Actions workflow
-- Build and test on pull request
-- Run unit and integration tests
-- Cache Gradle dependencies
-- Optional dependency/security scan
-- Optional Docker image build
+- GitHub Actions workflow present for pull requests and pushes to `main`
+- Builds with Java 25 and runs `./gradlew clean build --no-daemon`
+- Gradle dependency caching and wrapper validation are handled by the Gradle GitHub Action
+- Unit and Testcontainers-backed integration tests run as part of the build
+- Dependabot weekly update checks are present for Gradle dependencies and GitHub Actions
+- Heavier CI/CD concerns such as Sonar, SpotBugs, PMD, security scanning, coverage thresholds, deployment pipelines, and Docker image publishing remain future improvements
 
 ### Containerisation
 
 - Dockerfile
 - Docker Compose running app + PostgreSQL
 - Environment-variable based configuration
+
+### Code quality
+
+- Lightweight Checkstyle is active as part of `./gradlew check` and `./gradlew clean build`
+- Rules intentionally cover basic hygiene such as line length, wildcard imports, braces, whitespace, and one top-level class per file
+- Javadoc requirements and noisy enterprise rule sets are deliberately avoided for this take-home
+- Heavier static analysis such as Sonar, SpotBugs, PMD, and coverage gates remains a future improvement
 
 ### Documentation
 
