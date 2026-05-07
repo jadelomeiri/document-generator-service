@@ -110,6 +110,18 @@ class TrackServiceTests {
 	}
 
 	@Test
+	void dataIntegrityViolationDuringSaveWithNullIsrcIsRethrown() {
+		UUID artistId = UUID.randomUUID();
+		DataIntegrityViolationException dataIntegrityViolation = new DataIntegrityViolationException("constraint failure");
+		TrackService service = serviceWithArtist(artistId);
+		when(trackRepository.saveAndFlush(any(Track.class))).thenThrow(dataIntegrityViolation);
+
+		assertThatThrownBy(() -> service.addTrack(artistId, "Untitled", null, 180, "   "))
+				.isSameAs(dataIntegrityViolation);
+		verify(trackRepository, never()).existsByIsrc(any(String.class));
+	}
+
+	@Test
 	void missingArtistThrowsArtistNotFoundException() {
 		UUID artistId = UUID.randomUUID();
 		TrackService service = new TrackService(artistRepository, trackRepository);

@@ -168,6 +168,22 @@ class TrackControllerIntegrationTests {
 	}
 
 	@Test
+	void multipleTracksWithoutIsrcAreAllowed() throws Exception {
+		UUID artistId = createArtist("Boards of Canada");
+
+		addTrack(artistId, "Alpha and Omega", 417);
+		addTrack(artistId, "Music Is Math", 320);
+
+		mockMvc.perform(get("/api/v1/artists/{artistId}/tracks", artistId))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.tracks", hasSize(2)))
+				.andExpect(jsonPath("$.tracks[0].title").value("Alpha and Omega"))
+				.andExpect(jsonPath("$.tracks[0].isrc", nullValue()))
+				.andExpect(jsonPath("$.tracks[1].title").value("Music Is Math"))
+				.andExpect(jsonPath("$.tracks[1].isrc", nullValue()));
+	}
+
+	@Test
 	void isrcIsUppercaseNormalised() throws Exception {
 		UUID artistId = createArtist("Daft Punk");
 
