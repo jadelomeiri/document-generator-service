@@ -52,7 +52,8 @@ These are required for a credible submission.
 
 - Clear README instructions
 - Docker Compose for PostgreSQL
-- Application can run locally from Gradle
+- Application can run locally from Gradle with `SPRING_PROFILES_ACTIVE=local`
+- The local profile keeps Docker Compose-friendly datasource defaults while still allowing `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD` overrides
 - Final Docker Compose support for app + database if time allows
 
 ## P1 — Important if time allows
@@ -63,6 +64,9 @@ These are valuable production-readiness improvements, but should not block the c
 
 - Spring Boot Actuator health endpoint
 - Prometheus metrics endpoint
+- Useful Actuator endpoints are `/actuator/health`, `/actuator/health/liveness`, `/actuator/health/readiness`, and `/actuator/prometheus`
+- Common and production-like configuration expose only `health`, `info`, and `prometheus`; the local profile additionally exposes `metrics` for developer inspection
+- Health details are hidden by default and in production-like runs, and shown locally for troubleshooting
 - Basic structured logging
 - Useful application logs around create/update operations
 - Document key SLIs:
@@ -85,6 +89,7 @@ These are valuable production-readiness improvements, but should not block the c
 - Dockerfile
 - Docker Compose running app + PostgreSQL
 - Environment-variable based configuration
+- Production-like runs use the `prod` profile and require datasource settings from environment variables rather than committed fallback credentials
 
 ### Code quality
 
