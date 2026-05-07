@@ -106,6 +106,36 @@ class TrackControllerIntegrationTests {
 	}
 
 	@Test
+	void negativePageReturnsValidationFailure() throws Exception {
+		UUID artistId = UUID.randomUUID();
+
+		mockMvc.perform(get("/api/v1/artists/{artistId}/tracks?page=-1", artistId))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.title").value("Validation failed"))
+				.andExpect(jsonPath("$.errors.page").value("page must not be negative"));
+	}
+
+	@Test
+	void zeroSizeReturnsValidationFailure() throws Exception {
+		UUID artistId = UUID.randomUUID();
+
+		mockMvc.perform(get("/api/v1/artists/{artistId}/tracks?size=0", artistId))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.title").value("Validation failed"))
+				.andExpect(jsonPath("$.errors.size").value("size must be positive"));
+	}
+
+	@Test
+	void tooLargeSizeReturnsValidationFailure() throws Exception {
+		UUID artistId = UUID.randomUUID();
+
+		mockMvc.perform(get("/api/v1/artists/{artistId}/tracks?size=101", artistId))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.title").value("Validation failed"))
+				.andExpect(jsonPath("$.errors.size").value("size must be at most 100"));
+	}
+
+	@Test
 	void trackForMissingArtistReturnsNotFound() throws Exception {
 		UUID missingArtistId = UUID.randomUUID();
 
