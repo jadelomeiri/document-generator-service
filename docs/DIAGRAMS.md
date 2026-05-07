@@ -131,6 +131,6 @@ flowchart TB
 
 7. **Next improvements (2 minutes)**
    - Add OAuth2/OIDC and scope-protected write operations.
-   - Add production deployment pipeline with ECR, ECS/Fargate, RDS, Secrets Manager, dashboards, and alerts.
+   - Add a production deployment path such as ECR, ECS/Fargate, RDS, Secrets Manager, dashboards, and alerts.
    - Add read optimisation where justified: daily cache/precompute, read replicas, or cursor pagination.
    - Add OpenSearch or messaging only when product needs or integration consumers require them.

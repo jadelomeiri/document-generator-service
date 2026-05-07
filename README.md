@@ -264,3 +264,9 @@ Reasonable future improvements, depending on product needs and traffic profile:
 - metadata change events for downstream consumers
 - production deployment on managed compute with managed PostgreSQL
 - SLOs, dashboards, alerts, tracing, and incident runbooks
+
+## 13. AI assistance
+
+I used Codex/AI assistance during the implementation as a development accelerator for scaffolding, review, documentation, and test suggestions.
+
+I treated the output as code review input rather than blindly accepting it: changes were reviewed, adjusted, run locally, and committed incrementally. I remained responsible for the design decisions, trade-offs, testing strategy, and final implementation.
