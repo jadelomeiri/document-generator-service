@@ -96,9 +96,18 @@ public class ApiExceptionHandler {
 		ProblemDetail problem = validationProblem();
 		Map<String, String> errors = new LinkedHashMap<>();
 		ex.getConstraintViolations().forEach(violation ->
-				errors.putIfAbsent(violation.getPropertyPath().toString(), violation.getMessage()));
+				errors.putIfAbsent(clientFacingParameterName(violation.getPropertyPath().toString()),
+						violation.getMessage()));
 		problem.setProperty("errors", errors);
 		return ResponseEntity.badRequest().body(problem);
+	}
+
+	private String clientFacingParameterName(String propertyPath) {
+		int lastSeparator = propertyPath.lastIndexOf('.');
+		if (lastSeparator == -1) {
+			return propertyPath;
+		}
+		return propertyPath.substring(lastSeparator + 1);
 	}
 
 	private ProblemDetail validationProblem() {
