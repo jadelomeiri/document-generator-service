@@ -46,7 +46,7 @@
 - [ ] Final documentation review
 - [x] Run tests
 - [x] Run app locally with `SPRING_PROFILES_ACTIVE=local`
-- [x] Run PostgreSQL with Docker Compose
+- [x] Run PostgreSQL locally with Docker Compose
 - [x] Verify Actuator health/readiness/liveness/prometheus endpoints
 - [ ] Final cleanup
 
