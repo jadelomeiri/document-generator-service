@@ -214,7 +214,7 @@ Flyway owns schema creation and Hibernate is configured to validate rather than 
 - **Problem Details-style errors**: common failure cases return structured error bodies rather than ad hoc strings.
 - **Docker image builds package only**: the image build uses `bootJar` for speed and reproducibility, while CI is the authoritative full clean build/test gate.
 
-More detailed reasoning is captured in `docs/ARCHITECTURE.md`, `docs/DECISIONS.md`, and `docs/PRODUCTION_READINESS.md`. Reviewer-friendly Mermaid diagrams and presentation notes are available in `docs/DIAGRAMS.md`.
+More detailed reasoning is captured in [Architecture](docs/ARCHITECTURE.md), [Decision Log](docs/DECISIONS.md), and [Production Readiness Plan](docs/PRODUCTION_READINESS.md). Current task status is tracked in [TODO](docs/TODO.md). Reviewer-friendly Mermaid diagrams and presentation notes are available in [Architecture Diagrams and Presentation Notes](docs/DIAGRAMS.md).
 
 ## 11. Production-readiness notes
 
@@ -267,6 +267,4 @@ Reasonable future improvements, depending on product needs and traffic profile:
 
 ## 13. AI assistance
 
-I used Codex/AI assistance during the implementation as a development accelerator for scaffolding, review, documentation, and test suggestions.
-
-I treated the output as code review input rather than blindly accepting it: changes were reviewed, adjusted, run locally, and committed incrementally. I remained responsible for the design decisions, trade-offs, testing strategy, and final implementation.
+I used Codex/AI assistance as a development accelerator for scaffolding, review, documentation, and test suggestions. I reviewed, adjusted, tested, and committed changes incrementally, and I remained responsible for the design decisions, trade-offs, testing strategy, and final implementation.

@@ -42,12 +42,12 @@
 - [x] Environment-specific configuration
 - [x] README run instructions
 
-## Final
+## Final verification
 
-- [x] Final documentation review
-- [x] Run tests
+- [x] Final documentation consistency review
+- [x] Run full local build: `./gradlew clean build --no-daemon`
 - [x] Run app locally with `SPRING_PROFILES_ACTIVE=local`
-- [x] Run PostgreSQL locally with Docker Compose
+- [ ] Run PostgreSQL locally with Docker Compose
 - [x] Run app and PostgreSQL together with Docker Compose
 - [x] Verify Actuator health/readiness/liveness/prometheus endpoints
 - [x] Final cleanup
