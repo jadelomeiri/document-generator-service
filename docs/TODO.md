@@ -44,13 +44,13 @@
 
 ## Final
 
-- [ ] Final documentation review
+- [x] Final documentation review
 - [x] Run tests
 - [x] Run app locally with `SPRING_PROFILES_ACTIVE=local`
 - [x] Run PostgreSQL locally with Docker Compose
-- [ ] Run app and PostgreSQL together with Docker Compose
+- [x] Run app and PostgreSQL together with Docker Compose
 - [x] Verify Actuator health/readiness/liveness/prometheus endpoints
-- [ ] Final cleanup
+- [x] Final cleanup
 
 ## Reminder
 
@@ -58,7 +58,6 @@
 - [x] Validate positive track length at API level
 - [x] Normalise ISRC to uppercase
 - [x] Return duplicate ISRC as 409 Conflict
-- [ ] Consider renaming `GET /api/v1/homepage/artist-of-the-day`
 
 ## Notes
 
