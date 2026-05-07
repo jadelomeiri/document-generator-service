@@ -1,7 +1,7 @@
 package com.iceservices.musicmetadata.track.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.iceservices.musicmetadata.artist.api.LinkResponse;
+import com.iceservices.musicmetadata.common.api.LinkResponse;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
