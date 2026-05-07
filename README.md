@@ -164,7 +164,7 @@ This runs:
 - Java compilation
 - Checkstyle
 - unit and integration tests
-- Spring Boot test slices / application context checks
+- Spring Boot application context checks
 - Testcontainers-backed PostgreSQL integration tests
 
 CI is configured with GitHub Actions for pull requests and pushes to `main`. The workflow uses Java 25 and runs the same Gradle clean build command. Dependabot is configured for weekly Gradle dependency and GitHub Actions update checks.
