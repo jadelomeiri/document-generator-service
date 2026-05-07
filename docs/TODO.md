@@ -50,3 +50,4 @@
 - [x] Validate positive track length at API level
 - [x] Normalise ISRC to uppercase
 - [x] Return duplicate ISRC as 409 Conflict
+- [ ] Consider renaming `GET /api/v1/homepage/artist-of-the-day` 
