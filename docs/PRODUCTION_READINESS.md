@@ -149,7 +149,7 @@ These are realistic production concerns, but outside the time-boxed take-home im
 
 ## Deliberate non-goals for this submission
 
-The following are intentionally not implemented unless time allows:
+The following are intentionally not implemented in this submission unless explicitly requested later:
 
 - Full frontend
 - User login system

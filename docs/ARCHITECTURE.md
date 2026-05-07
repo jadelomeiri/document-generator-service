@@ -12,7 +12,7 @@ The implementation is intentionally a modular monolith. The current domain is sm
 
 - Artist API: create artists, update primary names, manage aliases
 - Track API: add tracks and fetch tracks for an artist
-  Homepage API: return the deterministic Artist of the Day
+- Homepage API: return the deterministic Artist of the Day
 - Persistence: PostgreSQL with Flyway migrations
 - API documentation: OpenAPI / Swagger
 - Observability: Spring Boot Actuator health/probes, info, and Prometheus metrics endpoint
