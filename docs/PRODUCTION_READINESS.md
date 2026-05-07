@@ -54,7 +54,7 @@ These are required for a credible submission.
 - Docker Compose for PostgreSQL
 - Application can run locally from Gradle with `SPRING_PROFILES_ACTIVE=local`
 - The local profile keeps Docker Compose-friendly datasource defaults while still allowing `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD` overrides
-- Final Docker Compose support for app + database if time allows
+- Docker Compose support for running the app and PostgreSQL together locally
 
 ## P1 — Important if time allows
 
@@ -86,8 +86,9 @@ These are valuable production-readiness improvements, but should not block the c
 
 ### Containerisation
 
-- Dockerfile
-- Docker Compose running app + PostgreSQL
+- Dockerfile added with a multi-stage Java 25 build and Java 25 runtime image
+- Docker image build intentionally runs `./gradlew clean bootJar --no-daemon` rather than tests; CI owns the full `./gradlew clean build --no-daemon` gate, including Testcontainers-backed tests
+- Docker Compose can run the app and PostgreSQL together for local production-like checks
 - Environment-variable based configuration
 - Production-like runs use the `prod` profile and require datasource settings from environment variables rather than committed fallback credentials
 
