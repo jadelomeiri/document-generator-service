@@ -38,8 +38,7 @@ class DocumentGeneratorApiIntegrationTests {
 	@Autowired
 	MockMvc mockMvc;
 
-	@Autowired
-	ObjectMapper objectMapper;
+	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	@Autowired
 	AuditEventRepository auditEventRepository;
