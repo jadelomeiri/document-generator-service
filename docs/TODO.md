@@ -28,7 +28,6 @@ These are intentionally conditional. They should be added only if the interview 
 - [ ] Unit tests for richer status transition rules.
 - [ ] Idempotency keys for safe request retries.
 - [ ] Pagination for broader request/audit listing endpoints.
-- [ ] Presentation-note refinements if the implemented endpoint set changes.
 
 ## Deliberately out of scope
 
