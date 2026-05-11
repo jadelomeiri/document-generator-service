@@ -145,13 +145,13 @@ This document records the initial design direction for the Document Generator Se
 - Build a simple UI. Rejected because it adds surface area and testing cost.
 - Ignore frontend needs. Rejected because API design should still support realistic user flows.
 
-## 14. Keep legacy application code untouched during documentation foundation
+## 14. Migrate the backend in one focused first slice
 
-**Decision:** Do not modify Java code in the documentation foundation phase.
+**Decision:** Replace the previous domain with a small document-generator slice covering templates, template versions, generation requests, generated document metadata, and audit events.
 
-**Why:** The repository was copied from another task. Capturing the new direction first reduces accidental half-migration and makes later implementation choices easier to review.
+**Why:** The documentation direction is now clear, so keeping the old Java domain would be more confusing than useful. A focused migration keeps the implementation reviewable while making the service runnable and credible.
 
 **Alternatives considered:**
 
-- Rename and rewrite everything immediately. Rejected because it risks mixing design, cleanup, and implementation in one unclear change.
-- Leave the old documentation unchanged. Rejected because the repository name and interview target have changed.
+- Keep only documentation and defer Java changes. Rejected because the interview demo now needs a buildable backend slice.
+- Build template administration, auth, rendering, storage, and queues immediately. Rejected because that would over-expand the exercise beyond the core lifecycle.

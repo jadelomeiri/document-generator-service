@@ -1,6 +1,6 @@
 # Diagrams
 
-These diagrams describe the intended Document Generator Service architecture. They are planning diagrams for the migration and should not be read as a claim that the Java implementation has already been converted.
+These diagrams describe the first implemented Document Generator Service backend slice and the future seams that remain deliberately out of scope.
 
 ## System context
 
@@ -14,7 +14,7 @@ flowchart LR
     api -. "future" .-> storage["Object storage"]
 ```
 
-## Planned backend components
+## Backend components
 
 ```mermaid
 flowchart TB

@@ -1,9 +1,9 @@
 package com.jadelomeiri.documentgenerator.common.error;
 
-import com.jadelomeiri.documentgenerator.artist.ArtistNotFoundException;
-import com.jadelomeiri.documentgenerator.artist.DuplicateArtistAliasException;
-import com.jadelomeiri.documentgenerator.homepage.ArtistOfTheDayNotFoundException;
-import com.jadelomeiri.documentgenerator.track.DuplicateTrackIsrcException;
+import com.jadelomeiri.documentgenerator.document.GeneratedDocumentNotFoundException;
+import com.jadelomeiri.documentgenerator.generation.GenerationRequestNotFoundException;
+import com.jadelomeiri.documentgenerator.template.DocumentTemplateNotFoundException;
+import com.jadelomeiri.documentgenerator.template.DocumentTemplateVersionNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import java.net.URI;
 import java.util.LinkedHashMap;
@@ -20,43 +20,43 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
-	@ExceptionHandler(ArtistNotFoundException.class)
-	ResponseEntity<ProblemDetail> handleArtistNotFound(ArtistNotFoundException ex) {
+	@ExceptionHandler(DocumentTemplateNotFoundException.class)
+	ResponseEntity<ProblemDetail> handleDocumentTemplateNotFound(DocumentTemplateNotFoundException ex) {
 		ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
-		problem.setType(URI.create("https://document-generator-service/errors/artist-not-found"));
-		problem.setTitle("Artist not found");
-		problem.setDetail("No artist exists with id " + ex.getArtistId() + ".");
-		problem.setProperty("artistId", ex.getArtistId());
+		problem.setType(URI.create("https://document-generator-service/errors/document-template-not-found"));
+		problem.setTitle("Document template not found");
+		problem.setDetail("No document template exists with id " + ex.getTemplateId() + ".");
+		problem.setProperty("templateId", ex.getTemplateId());
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
 	}
 
-	@ExceptionHandler(DuplicateArtistAliasException.class)
-	ResponseEntity<ProblemDetail> handleDuplicateAlias(DuplicateArtistAliasException ex) {
-		ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.CONFLICT);
-		problem.setType(URI.create("https://document-generator-service/errors/duplicate-artist-alias"));
-		problem.setTitle("Duplicate artist alias");
-		problem.setDetail("Alias '" + ex.getAlias() + "' already exists for this artist.");
-		problem.setProperty("artistId", ex.getArtistId());
-		problem.setProperty("alias", ex.getAlias());
-		return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
-	}
-
-	@ExceptionHandler(DuplicateTrackIsrcException.class)
-	ResponseEntity<ProblemDetail> handleDuplicateTrackIsrc(DuplicateTrackIsrcException ex) {
-		ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.CONFLICT);
-		problem.setType(URI.create("https://document-generator-service/errors/duplicate-track-isrc"));
-		problem.setTitle("Duplicate track ISRC");
-		problem.setDetail("Track with ISRC '" + ex.getIsrc() + "' already exists.");
-		problem.setProperty("isrc", ex.getIsrc());
-		return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
-	}
-
-	@ExceptionHandler(ArtistOfTheDayNotFoundException.class)
-	ResponseEntity<ProblemDetail> handleArtistOfTheDayNotFound() {
+	@ExceptionHandler(DocumentTemplateVersionNotFoundException.class)
+	ResponseEntity<ProblemDetail> handleDocumentTemplateVersionNotFound(DocumentTemplateVersionNotFoundException ex) {
 		ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
-		problem.setType(URI.create("https://document-generator-service/errors/artist-of-the-day-not-found"));
-		problem.setTitle("Artist of the Day unavailable");
-		problem.setDetail("Artist of the Day cannot be selected because no canonical artists exist.");
+		problem.setType(URI.create("https://document-generator-service/errors/document-template-version-not-found"));
+		problem.setTitle("Document template version not found");
+		problem.setDetail("No document template version exists with id " + ex.getTemplateVersionId() + ".");
+		problem.setProperty("templateVersionId", ex.getTemplateVersionId());
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
+	}
+
+	@ExceptionHandler(GenerationRequestNotFoundException.class)
+	ResponseEntity<ProblemDetail> handleGenerationRequestNotFound(GenerationRequestNotFoundException ex) {
+		ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+		problem.setType(URI.create("https://document-generator-service/errors/generation-request-not-found"));
+		problem.setTitle("Generation request not found");
+		problem.setDetail("No document generation request exists with id " + ex.getRequestId() + ".");
+		problem.setProperty("requestId", ex.getRequestId());
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
+	}
+
+	@ExceptionHandler(GeneratedDocumentNotFoundException.class)
+	ResponseEntity<ProblemDetail> handleGeneratedDocumentNotFound(GeneratedDocumentNotFoundException ex) {
+		ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+		problem.setType(URI.create("https://document-generator-service/errors/generated-document-not-found"));
+		problem.setTitle("Generated document not found");
+		problem.setDetail("No generated document exists with id " + ex.getDocumentId() + ".");
+		problem.setProperty("documentId", ex.getDocumentId());
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
 	}
 
@@ -96,7 +96,8 @@ public class ApiExceptionHandler {
 		ProblemDetail problem = validationProblem();
 		Map<String, String> errors = new LinkedHashMap<>();
 		ex.getConstraintViolations().forEach(violation ->
-				errors.putIfAbsent(clientFacingParameterName(violation.getPropertyPath().toString()),
+				errors.putIfAbsent(
+						clientFacingParameterName(violation.getPropertyPath().toString()),
 						violation.getMessage()));
 		problem.setProperty("errors", errors);
 		return ResponseEntity.badRequest().body(problem);

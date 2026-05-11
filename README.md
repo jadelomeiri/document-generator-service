@@ -2,100 +2,87 @@
 
 A small, production-minded Spring Boot backend demo for an LDMS Senior Java Engineer final interview whiteboard exercise: **Design a Document Generator**.
 
-This repository was copied from a previous Spring Boot technical task and is being refocused into a fintech/lending document generation service. The first step is this documentation foundation. The existing Java application has not been replaced yet, so the codebase may still contain legacy domain implementation details until the backend is intentionally migrated.
+The repository has been migrated from the previous sample domain into a fintech/lending document-generation backend. The first implemented slice focuses on template discovery, synchronous demo generation, generated document metadata, and audit history.
 
 ## Goal
 
-Model the backend of a document generator used in a lending or fintech context. The service should show how a backend can safely manage document templates, accept document generation requests, record generated document metadata, and retain an audit trail for operational and compliance review.
+Model the backend of a document generator used in a lending or fintech context. The service shows how a backend can manage document templates, accept document generation requests, record generated document metadata, and retain an audit trail for operational and compliance review.
 
-The aim is not to build a full enterprise document platform. The target is a focused, interview-friendly service that demonstrates senior engineering judgement: clear boundaries, auditability, versioning, request status management, testability, and API design.
+The aim is not to build a full enterprise document platform. The target is a focused, interview-friendly service that demonstrates clear boundaries, auditability, versioning, request status management, testability, and API design.
 
-## Intended domain model
+## Implemented domain model
 
-The planned backend will focus on five first-class concepts:
+The backend focuses on five first-class concepts:
 
 | Concept | Purpose |
 | --- | --- |
-| Document template | A named template family such as loan agreement, disclosure pack, statement, or offer letter. |
-| Template version | An immutable version of a template used by generation requests so historical documents remain traceable. |
-| Generation request | A request to create a document from a specific template version and input payload. |
-| Generated document metadata | Metadata about the produced document, such as document id, status, checksum, storage reference, timestamps, and requester context. |
-| Audit event | Append-only events recording important lifecycle actions for templates, requests, and generated documents. |
+| `DocumentTemplate` | A named template family such as Loan Agreement or Customer Statement. |
+| `DocumentTemplateVersion` | An immutable version used by generation requests so historical documents remain traceable. |
+| `DocumentGenerationRequest` | A request to create a document from a specific template version and input payload. |
+| `GeneratedDocument` | Metadata about the produced document, including content type, checksum, storage reference, timestamps, and template version. |
+| `AuditEvent` | Events recording important lifecycle actions for generation requests. |
 
 The backend is the source of truth for templates, template versions, request state, generated document metadata, and audit history.
 
 ## What is implemented today
 
-Implemented today:
+Implemented:
 
-- Documentation foundation for the new Document Generator direction.
-- Existing Spring Boot project structure, build tooling, Docker support, database migration setup, tests, and CI inherited from the previous task.
+- PostgreSQL/Flyway schema for templates, template versions, generation requests, generated documents, and audit events.
+- Seed data for two active PDF templates:
+  - Loan Agreement v1 PDF.
+  - Customer Statement v1 PDF.
+- REST endpoints for listing templates, reading versions, creating generation requests, reading requests, reading generated document metadata, and viewing request audit events.
+- A synchronous generation workflow with statuses `RECEIVED`, `VALIDATED`, `GENERATING`, `COMPLETED`, and `FAILED`.
+- Deterministic demo generated-document metadata using `demo://generated-documents/{requestId}` storage references and SHA-256 checksums.
+- Problem Details-style errors for missing resources, invalid UUIDs, and validation failures.
+- Focused integration tests using Testcontainers/PostgreSQL.
 
-Not implemented yet:
+Not implemented:
 
-- Document template APIs.
-- Template version persistence.
-- Document generation request APIs.
-- Request status workflow.
-- Generated document metadata persistence.
-- Audit event persistence and APIs.
-- Document rendering or file storage integration.
+- Real PDF/DOCX rendering.
+- Object storage integration.
+- Authentication or user accounts.
+- Queues, Kafka/SQS/SNS, Redis, Elasticsearch/OpenSearch, Kubernetes, or workflow engines.
+- Frontend UI.
 
-The existing Java code is deliberately left untouched at this stage. It will be migrated in later steps after the design direction is documented.
+## REST API
 
-## Planned backend capabilities
+Base path: `/api/v1`
 
-The first production-minded slice should include:
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/templates` | List seeded document templates. |
+| `GET` | `/templates/{templateId}` | Read a template. |
+| `GET` | `/templates/{templateId}/versions` | List versions for a template. |
+| `POST` | `/generation-requests` | Create and synchronously process a demo generation request. |
+| `GET` | `/generation-requests/{requestId}` | Read a generation request and generated document metadata when completed. |
+| `GET` | `/generation-requests/{requestId}/audit-events` | List audit events for a generation request. |
+| `GET` | `/generated-documents/{documentId}` | Read generated document metadata. |
 
-- Manage document templates and immutable template versions.
-- Create document generation requests against an explicit template version.
-- Maintain request status, for example `RECEIVED`, `VALIDATED`, `GENERATING`, `COMPLETED`, and `FAILED`.
-- Store generated document metadata without exposing implementation details of the storage provider.
-- Record audit events for meaningful lifecycle changes.
-- Provide clear REST APIs with validation and Problem Details-style errors.
-- Use PostgreSQL as the source of truth and Flyway for schema migrations.
-- Add tests around validation, state transitions, audit creation, and API behaviour.
+Example request:
+
+```bash
+curl -X POST http://localhost:8080/api/v1/generation-requests \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "templateVersionId": "20000000-0000-0000-0000-000000000001",
+    "customerReference": "customer-123",
+    "requestedBy": "caseworker-456",
+    "inputPayloadJson": "{\"loanAmount\":125000,\"currency\":\"GBP\"}"
+  }'
+```
 
 ## Frontend scope
 
-A frontend will not be implemented for this interview demo.
+A frontend is intentionally not implemented for this interview demo. A future UI would select a template, submit a generation request, poll or refresh status, display generated document metadata, and expose audit history to authorised operational users.
 
-The expected frontend flow will be documented instead:
+## Technology stack
 
-1. An operations or lending user selects a document template.
-2. The UI shows the active template version and required input fields.
-3. The user submits a generation request.
-4. The UI polls or refreshes request status.
-5. When completed, the UI shows generated document metadata and a download/open action if supported by the backend.
-6. Audit history is available to authorised operational users.
-
-The backend remains the source of truth for statuses, template versions, generated metadata, and audit events. The UI should not infer lifecycle state independently.
-
-## Deliberately out of scope
-
-To keep the exercise small and focused, these are intentionally out of scope unless explicitly requested later:
-
-- Full frontend implementation.
-- User accounts, login, or authentication flows.
-- Complex role-based access control.
-- Real PDF/DOCX rendering engine integration.
-- External object storage integration such as S3.
-- Kafka, SQS, SNS, or event streaming.
-- Redis or distributed caching.
-- Elasticsearch/OpenSearch.
-- Kubernetes or infrastructure-as-code.
-- Full workflow orchestration.
-- Complex credit, underwriting, or legal-document modelling.
-
-These can be discussed as production extensions, but they should not distract from the core backend design.
-
-## Technology direction
-
-The intended stack remains a pragmatic JVM backend stack:
-
-- Java
-- Spring Boot
-- Spring Web
+- Java 25
+- Spring Boot 4
+- Spring Web MVC
+- Spring HATEOAS
 - Spring Data JPA
 - Jakarta Validation
 - PostgreSQL
@@ -106,30 +93,35 @@ The intended stack remains a pragmatic JVM backend stack:
 - Testcontainers
 - Docker Compose for local support
 
-Version details will be confirmed during implementation rather than over-specified in documentation before the code migration.
-
 ## Local development
 
-The inherited project currently uses Gradle:
+Run the full quality gate:
 
 ```bash
 ./gradlew clean build
 ```
 
-Local runtime commands will be updated once the Java implementation is migrated from the previous task to the document generator domain.
+Start PostgreSQL for local runtime:
+
+```bash
+docker compose up -d postgres
+```
+
+Then run the application:
+
+```bash
+./gradlew bootRun
+```
+
+Swagger UI is available at `/swagger-ui.html` when the app is running.
 
 ## Documentation map
 
 - `docs/TASK_BRIEF.md` - concise interview exercise brief and scope.
-- `docs/ARCHITECTURE.md` - intended backend architecture for the migration.
-- `docs/DIAGRAMS.md` - planning diagrams for system context, components, data relationships, and request lifecycle.
+- `docs/ARCHITECTURE.md` - backend architecture and request lifecycle.
+- `docs/DIAGRAMS.md` - system context, components, data relationships, and request lifecycle diagrams.
 - `docs/DECISIONS.md` - design decisions, trade-offs, and alternatives considered.
-- `docs/FRONTEND_FLOW.md` - documented frontend journey without implementing a frontend.
-- `docs/PRODUCTION_READINESS.md` - priority guide for first-slice readiness and future production improvements.
-- `docs/PRESENTATION_NOTES.md` - whiteboard / final interview talking points.
-- `docs/TODO.md` - implementation plan and sequencing.
-- `docs/presentation/README.md` - note explaining why old generated presentation assets were removed.
-
-## Current status
-
-This repository is in the **documentation foundation** phase for the Document Generator exercise. Java code changes are intentionally deferred.
+- `docs/FRONTEND_FLOW.md` - documented frontend flow without adding a frontend implementation.
+- `docs/PRODUCTION_READINESS.md` - prioritised production-readiness backlog.
+- `docs/TODO.md` - implementation checklist.
+- `docs/PRESENTATION_NOTES.md` - interview talking points.
