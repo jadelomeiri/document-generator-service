@@ -20,7 +20,7 @@ The backend owns templates, immutable template versions, generation requests, ge
 
 ## Whiteboard model
 
-Suggested boxes:
+Suggested five core boxes:
 
 - `document_template`
 - `document_template_version`

@@ -34,6 +34,8 @@ For the first implementation, this flow can run synchronously. The explicit requ
 
 ## Domain model
 
+The intended domain model has five first-class concepts. They are listed separately because template versioning, request lifecycle, generated metadata, and audit history should not be collapsed into one generic document record.
+
 ### Document template
 
 A document template represents a business document family, such as a loan agreement, disclosure pack, statement, or offer letter.

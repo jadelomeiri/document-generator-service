@@ -28,6 +28,8 @@ The frontend itself is out of scope. The flow is documented to show how the back
 
 ## Core domain concepts
 
+The planned backend model has five first-class concepts:
+
 - **Document template**: A named template definition for a business document.
 - **Template version**: An immutable version of a template used by generation requests.
 - **Generation request**: A durable request record to generate a document from a specific template version and payload.

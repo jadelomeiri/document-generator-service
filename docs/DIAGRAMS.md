@@ -46,6 +46,8 @@ flowchart TB
 
 ## Core data relationships
 
+The core model uses five first-class concepts: document templates, template versions, generation requests, generated document metadata, and audit events.
+
 ```mermaid
 erDiagram
     DOCUMENT_TEMPLATE ||--o{ DOCUMENT_TEMPLATE_VERSION : has

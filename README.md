@@ -12,16 +12,17 @@ The aim is not to build a full enterprise document platform. The target is a foc
 
 ## Intended domain model
 
-The planned backend will focus on four concepts:
+The planned backend will focus on five first-class concepts:
 
 | Concept | Purpose |
 | --- | --- |
-| Document template | A named, versioned template such as loan agreement, disclosure pack, statement, or offer letter. |
+| Document template | A named template family such as loan agreement, disclosure pack, statement, or offer letter. |
+| Template version | An immutable version of a template used by generation requests so historical documents remain traceable. |
 | Generation request | A request to create a document from a specific template version and input payload. |
 | Generated document metadata | Metadata about the produced document, such as document id, status, checksum, storage reference, timestamps, and requester context. |
 | Audit event | Append-only events recording important lifecycle actions for templates, requests, and generated documents. |
 
-The backend is the source of truth for request state, generated document metadata, template versions, and audit history.
+The backend is the source of truth for templates, template versions, request state, generated document metadata, and audit history.
 
 ## What is implemented today
 

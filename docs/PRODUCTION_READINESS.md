@@ -14,6 +14,8 @@ The goal is to keep the system small enough for an interview demo while showing 
 
 ### Domain and persistence
 
+P0 starts with the same five first-class concepts used across the design docs:
+
 - Document templates with stable UUID identity.
 - Immutable template versions.
 - Generation requests linked to a specific template version.
