@@ -46,7 +46,7 @@ P0 starts with the same five first-class concepts used across the design docs:
 
 - Focused tests for the generation workflow, generated document metadata, audit event creation, and missing template-version errors.
 - Testcontainers-backed PostgreSQL integration tests for the API and persistence path.
-- Full Gradle build before Java changes are considered complete when dependency downloads are available.
+- The full Gradle build passes locally.
 
 ### Documentation
 

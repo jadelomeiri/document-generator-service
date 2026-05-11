@@ -121,7 +121,17 @@ Useful smoke checks after startup:
 curl http://localhost:8080/actuator/health
 curl http://localhost:8080/api/v1/templates
 curl http://localhost:8080/api/v1/templates/10000000-0000-0000-0000-000000000001/versions
+curl -X POST http://localhost:8080/api/v1/generation-requests \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "templateVersionId": "20000000-0000-0000-0000-000000000001",
+    "customerReference": "customer-123",
+    "requestedBy": "caseworker-456",
+    "inputPayloadJson": "{\"loanAmount\":125000,\"currency\":\"GBP\"}"
+  }'
 ```
+
+A successful POST returns a `COMPLETED` request with generated document metadata, a demo `demo://generated-documents/{requestId}` storage reference, and links for the generated document and request audit events.
 
 The seeded template UUIDs are:
 
