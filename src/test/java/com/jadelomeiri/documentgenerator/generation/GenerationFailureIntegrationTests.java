@@ -8,7 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jadelomeiri.documentgenerator.TestcontainersConfiguration;
 import com.jadelomeiri.documentgenerator.audit.AuditEventRepository;
 import com.jadelomeiri.documentgenerator.document.GeneratedDocumentDraft;
@@ -38,7 +38,7 @@ class GenerationFailureIntegrationTests {
 	MockMvc mockMvc;
 
 	@Autowired
-	JsonMapper jsonMapper;
+	ObjectMapper objectMapper;
 
 	@Autowired
 	AuditEventRepository auditEventRepository;
@@ -67,7 +67,7 @@ class GenerationFailureIntegrationTests {
 				.andExpect(jsonPath("$.generatedDocument").doesNotExist())
 				.andReturn();
 
-		JsonNode response = jsonMapper.readTree(createResult.getResponse().getContentAsString());
+		JsonNode response = objectMapper.readTree(createResult.getResponse().getContentAsString());
 		UUID requestId = UUID.fromString(response.get("id").asText());
 
 		mockMvc.perform(get("/api/v1/generation-requests/{requestId}", requestId))
