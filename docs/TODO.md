@@ -1,6 +1,6 @@
 # TODO
 
-This TODO tracks the migration from the previous Spring Boot task into the Document Generator Service. Keep the scope small, production-minded, and interview-friendly.
+This TODO guides the migration from the previous Spring Boot task into the Document Generator Service. Keep the scope small, production-minded, and interview-friendly.
 
 ## Phase 0: Documentation foundation
 
@@ -13,7 +13,7 @@ This TODO tracks the migration from the previous Spring Boot task into the Docum
 
 ## Phase 1: Repository alignment before Java migration
 
-- [ ] Review existing package names, application names, and configuration for legacy music-metadata wording.
+- [ ] Review existing package names, application names, and configuration for legacy domain wording.
 - [ ] Decide whether to preserve useful infrastructure from the previous task, such as Gradle, Docker Compose, Flyway, Testcontainers, OpenAPI, and CI.
 - [ ] Update non-code documentation that still refers to the old domain where it would confuse the new exercise.
 - [ ] Confirm local build still works before domain code changes.

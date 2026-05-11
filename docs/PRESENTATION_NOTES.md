@@ -4,7 +4,7 @@ These notes support the LDMS Senior Java Engineer final interview discussion. Th
 
 ## One-minute summary
 
-I would build a small Spring Boot backend that treats document generation as a tracked business process, not just a file-rendering utility.
+I would build a small Spring Boot backend that treats document generation as a durable business process, not just a file-rendering utility.
 
 The backend owns templates, immutable template versions, generation requests, generated document metadata, and audit events. The frontend can initiate and inspect the process, but the backend remains the source of truth for status, version selection, metadata, and audit history.
 

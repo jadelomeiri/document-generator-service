@@ -10,7 +10,7 @@ The deliverable should be a small, production-minded Spring Boot backend demo. I
 
 Design and implement the backend for a document generator in a fintech/lending context.
 
-The system should support the lifecycle of creating documents from versioned templates, tracking generation requests, storing generated document metadata, and recording audit events. The backend is the source of truth for template versions, request statuses, generated document metadata, and audit history.
+The system should support the lifecycle of creating documents from versioned templates, managing generation requests, storing generated document metadata, and recording audit events. The backend is the source of truth for template versions, request statuses, generated document metadata, and audit history.
 
 ## Intended users and flow
 
@@ -19,7 +19,7 @@ A likely frontend flow is:
 1. A lending or operations user chooses a document template, such as a loan agreement, disclosure, statement, or offer letter.
 2. The UI displays the selected template and version information.
 3. The user submits generation inputs for a customer, loan, account, or application context.
-4. The backend validates the request and creates a tracked generation request.
+4. The backend validates the request and creates a durable generation request.
 5. The backend moves the request through a clear status lifecycle.
 6. The UI reads request status and, when complete, displays generated document metadata and a link/action if retrieval is supported.
 7. Operational users can inspect audit events for traceability.
@@ -30,7 +30,7 @@ The frontend itself is out of scope. The flow is documented to show how the back
 
 - **Document template**: A named template definition for a business document.
 - **Template version**: An immutable version of a template used by generation requests.
-- **Generation request**: A tracked request to generate a document from a specific template version and payload.
+- **Generation request**: A durable request record to generate a document from a specific template version and payload.
 - **Generated document metadata**: Metadata for the produced document, not necessarily the document bytes themselves.
 - **Audit event**: Append-only record of important lifecycle events.
 
@@ -40,7 +40,7 @@ The design should prioritise:
 
 - Auditability and traceability.
 - Immutable template versioning.
-- Request status tracking.
+- Request status management.
 - Clear API contracts and validation.
 - Problem Details-style error responses.
 - Database-backed source of truth.

@@ -2,13 +2,13 @@
 
 A small, production-minded Spring Boot backend demo for an LDMS Senior Java Engineer final interview whiteboard exercise: **Design a Document Generator**.
 
-This repository was copied from a previous Spring Boot technical task and is being refocused into a fintech/lending document generation service. The first step is this documentation foundation. The existing Java application has not been replaced yet, so the codebase may still contain legacy music-metadata implementation details until the backend is intentionally migrated.
+This repository was copied from a previous Spring Boot technical task and is being refocused into a fintech/lending document generation service. The first step is this documentation foundation. The existing Java application has not been replaced yet, so the codebase may still contain legacy domain implementation details until the backend is intentionally migrated.
 
 ## Goal
 
-Model the backend of a document generator used in a lending or fintech context. The service should show how a backend can safely manage document templates, accept document generation requests, track generated document metadata, and retain an audit trail for operational and compliance review.
+Model the backend of a document generator used in a lending or fintech context. The service should show how a backend can safely manage document templates, accept document generation requests, record generated document metadata, and retain an audit trail for operational and compliance review.
 
-The aim is not to build a full enterprise document platform. The target is a focused, interview-friendly service that demonstrates senior engineering judgement: clear boundaries, auditability, versioning, request status tracking, testability, and API design.
+The aim is not to build a full enterprise document platform. The target is a focused, interview-friendly service that demonstrates senior engineering judgement: clear boundaries, auditability, versioning, request status management, testability, and API design.
 
 ## Intended domain model
 
@@ -48,7 +48,7 @@ The first production-minded slice should include:
 
 - Manage document templates and immutable template versions.
 - Create document generation requests against an explicit template version.
-- Track request status, for example `RECEIVED`, `VALIDATED`, `GENERATING`, `COMPLETED`, and `FAILED`.
+- Maintain request status, for example `RECEIVED`, `VALIDATED`, `GENERATING`, `COMPLETED`, and `FAILED`.
 - Store generated document metadata without exposing implementation details of the storage provider.
 - Record audit events for meaningful lifecycle changes.
 - Provide clear REST APIs with validation and Problem Details-style errors.
@@ -120,9 +120,14 @@ Local runtime commands will be updated once the Java implementation is migrated 
 ## Documentation map
 
 - `docs/TASK_BRIEF.md` - concise interview exercise brief and scope.
+- `docs/ARCHITECTURE.md` - intended backend architecture for the migration.
+- `docs/DIAGRAMS.md` - planning diagrams for system context, components, data relationships, and request lifecycle.
 - `docs/DECISIONS.md` - design decisions, trade-offs, and alternatives considered.
+- `docs/FRONTEND_FLOW.md` - documented frontend journey without implementing a frontend.
+- `docs/PRODUCTION_READINESS.md` - priority guide for first-slice readiness and future production improvements.
 - `docs/PRESENTATION_NOTES.md` - whiteboard / final interview talking points.
 - `docs/TODO.md` - implementation plan and sequencing.
+- `docs/presentation/README.md` - note explaining why old generated presentation assets were removed.
 
 ## Current status
 

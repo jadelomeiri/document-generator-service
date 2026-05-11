@@ -35,11 +35,11 @@ This document records the initial design direction for the Document Generator Se
 - Updating templates in place. Rejected because it breaks historical traceability.
 - Storing only a free-text template name on each request. Rejected because it is too weak for audit and repeatability.
 
-## 4. Track request status explicitly
+## 4. Manage request status explicitly
 
 **Decision:** Generation requests should have a clear status lifecycle, such as `RECEIVED`, `VALIDATED`, `GENERATING`, `COMPLETED`, and `FAILED`.
 
-**Why:** Status tracking gives clients a simple contract and gives the backend a reliable way to represent progress, failure, and retry discussions.
+**Why:** Status management gives clients a simple contract and gives the backend a reliable way to represent progress, failure, and retry discussions.
 
 **Alternatives considered:**
 
@@ -99,7 +99,7 @@ This document records the initial design direction for the Document Generator Se
 **Alternatives considered:**
 
 - Add Kafka, SQS, or a job queue immediately. Rejected because it is unnecessary infrastructure for the first implementation.
-- Avoid status tracking until async processing exists. Rejected because status is valuable even in the synchronous first slice.
+- Avoid status management until async processing exists. Rejected because status is valuable even in the synchronous first slice.
 
 ## 10. Use PostgreSQL and Flyway for persistence
 
