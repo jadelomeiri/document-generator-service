@@ -145,13 +145,13 @@ This document records the initial design direction for the Document Generator Se
 - Build a simple UI. Rejected because it adds surface area and testing cost.
 - Ignore frontend needs. Rejected because API design should still support realistic user flows.
 
-## 14. Migrate the backend in one focused first slice
+## 14. Keep the backend in one focused first slice
 
-**Decision:** Replace the previous domain with a small document-generator slice covering templates, template versions, generation requests, generated document metadata, and audit events.
+**Decision:** Keep the first implementation slice small: templates, template versions, generation requests, generated document metadata, and audit events.
 
-**Why:** The documentation direction is now clear, so keeping the old Java domain would be more confusing than useful. A focused migration keeps the implementation reviewable while making the service runnable and credible.
+**Why:** A focused implementation keeps the service reviewable while making it runnable and credible for the interview.
 
 **Alternatives considered:**
 
-- Keep only documentation and defer Java changes. Rejected because the interview demo now needs a buildable backend slice.
+- Keep only documentation and defer Java changes. Rejected because the interview demo needs a buildable backend slice.
 - Build template administration, auth, rendering, storage, and queues immediately. Rejected because that would over-expand the exercise beyond the core lifecycle.

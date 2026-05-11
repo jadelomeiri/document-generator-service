@@ -2,7 +2,7 @@
 
 A small, production-minded Spring Boot backend demo for an LDMS Senior Java Engineer final interview whiteboard exercise: **Design a Document Generator**.
 
-The repository has been migrated from the previous sample domain into a fintech/lending document-generation backend. The first implemented slice focuses on template discovery, synchronous demo generation, generated document metadata, and audit history.
+The implemented slice focuses on template discovery, synchronous demo generation, generated document metadata, and audit history for a fintech/lending document-generation backend.
 
 ## Goal
 
@@ -110,10 +110,25 @@ docker compose up -d postgres
 Then run the application:
 
 ```bash
-./gradlew bootRun
+./gradlew bootRun --args='--spring.profiles.active=local'
 ```
 
-Swagger UI is available at `/swagger-ui.html` when the app is running.
+Swagger UI is available at `http://localhost:8080/swagger-ui.html` when the app is running. SpringDoc redirects that URL to the Swagger UI index page.
+
+Useful smoke checks after startup:
+
+```bash
+curl http://localhost:8080/actuator/health
+curl http://localhost:8080/api/v1/templates
+curl http://localhost:8080/api/v1/templates/10000000-0000-0000-0000-000000000001/versions
+```
+
+The seeded template UUIDs are:
+
+- Loan Agreement template: `10000000-0000-0000-0000-000000000001`
+- Loan Agreement v1 PDF: `20000000-0000-0000-0000-000000000001`
+- Customer Statement template: `10000000-0000-0000-0000-000000000002`
+- Customer Statement v1 PDF: `20000000-0000-0000-0000-000000000002`
 
 ## Documentation map
 

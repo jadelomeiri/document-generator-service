@@ -1,6 +1,6 @@
 # TODO
 
-This TODO guides the migration from the previous Spring Boot task into the Document Generator Service. Keep the scope small, production-minded, and interview-friendly.
+This TODO tracks the remaining Document Generator Service work. Keep the scope small, production-minded, and interview-friendly.
 
 ## Phase 0: Documentation foundation
 
@@ -9,14 +9,14 @@ This TODO guides the migration from the previous Spring Boot task into the Docum
 - [x] Create decision log with trade-offs and alternatives.
 - [x] Create presentation notes for the whiteboard discussion.
 - [x] Create implementation TODO list.
-- [x] Completed the documentation foundation before starting Java migration.
+- [x] Completed the documentation foundation before implementation work.
 
-## Phase 1: Repository alignment before Java migration
+## Phase 1: Repository alignment
 
-- [x] Review existing package names, application names, and configuration for legacy domain wording.
-- [x] Decide whether to preserve useful infrastructure from the previous task, such as Gradle, Docker Compose, Flyway, Testcontainers, OpenAPI, and CI.
-- [x] Update non-code documentation that still refers to the old domain where it would confuse the new exercise.
-- [ ] Confirm local build still works before domain code changes.
+- [x] Review package names, application names, and configuration for document-generator wording.
+- [x] Preserve useful infrastructure such as Gradle, Docker Compose, Flyway, Testcontainers, OpenAPI, and CI.
+- [x] Keep non-code documentation aligned with the document-generator domain.
+- [x] Confirm local build and static checks after code changes.
 
 ## Phase 2: Domain and persistence design
 
@@ -26,7 +26,7 @@ This TODO guides the migration from the previous Spring Boot task into the Docum
 - [x] Define generated document metadata.
 - [x] Define append-only audit events.
 - [x] Add Flyway migrations for the document generator schema.
-- [x] Remove or replace legacy previous-domain migrations only when the Java migration starts.
+- [x] Keep Flyway migrations aligned with the document-generator schema.
 
 ## Phase 3: API implementation
 
@@ -55,15 +55,15 @@ This TODO guides the migration from the previous Spring Boot task into the Docum
 - [x] Add integration coverage for audit event creation.
 - [x] Add API tests for validation failures and happy paths.
 - [x] Add repository/integration tests using PostgreSQL/Testcontainers where useful.
-- [x] Run the full Gradle build before committing Java changes.
+- [x] Run the full Gradle build or record the environment limitation before committing Java changes.
 
 ## Phase 6: Production-minded polish
 
-- [x] Retain Spring Boot Actuator support from the previous task.
+- [x] Retain Spring Boot Actuator support.
 - [x] Confirm Docker Compose supports local PostgreSQL development.
 - [x] Confirm API examples are documented.
 - [ ] Update presentation notes with implemented endpoints and trade-offs.
-- [x] Update README with accurate run instructions after the Java migration.
+- [x] Update README with accurate run instructions.
 
 ## Deliberately out of scope for now
 

@@ -76,9 +76,9 @@ Purpose: support operational traceability.
 
 Backend needs:
 
-- List audit events for a generation request or related resource.
+- List audit events for a generation request.
 - Show event type, timestamp, actor/requester context, and concise event details.
-- Paginate audit history.
+- Treat broader or long-running audit history pagination as a future API concern; the current endpoint returns the audit events for one generation request.
 
 ## Client rules
 

@@ -29,9 +29,9 @@ P0 starts with the same five first-class concepts used across the design docs:
 
 - Request/response DTOs rather than exposing persistence entities.
 - Jakarta Validation for API inputs.
-- Problem Details-style errors for validation failures, missing resources, invalid state transitions, and conflicts.
+- Problem Details-style errors for validation failures and missing resources. Invalid state transitions and conflicts belong with future mutation endpoints.
 - Clear endpoint names for templates, template versions, generation requests, generated document metadata, and audit events.
-- Pagination for list endpoints that can grow, especially request and audit history. The first slice only exposes small seeded template lists and per-request audit history; broader request listing remains out of scope.
+- Bounded retrieval for collections that can grow. The first slice only exposes small seeded template lists and per-request audit history; broader request listing and audit pagination remain out of scope.
 
 ### Business rules
 
@@ -123,7 +123,7 @@ These are valid production topics but should remain future discussion points unl
 ## Readiness checklist before presenting
 
 - [x] Documentation states clearly what is implemented and what is planned.
-- [x] No stale domain wording from the previous task remains in useful docs.
-- [x] Java migration has started with the first backend slice.
+- [x] Documentation uses the document-generator domain consistently.
+- [x] The first backend slice is implemented and buildable.
 - [x] First implementation stays focused on templates, versions, requests, generated metadata, and audit events.
 - [x] P2 ideas are described as future improvements, not part of the first build.
