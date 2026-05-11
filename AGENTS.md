@@ -2,56 +2,66 @@
 
 ## Project
 
-This is a production-minded JVM take-home task for a Tech Lead role at ICE.
+This is a small, production-minded Spring Boot Document Generator Service for an LDMS Senior Java Engineer final interview.
 
-Build a Music Metadata Service for a streaming-platform-like product serving many users globally.
+The implementation should be easy to run, test, review, and explain in an interview. Keep the service intentionally scoped: credible enough to show senior engineering judgement, but not expanded into a large platform.
 
-The implementation should stay pragmatic: not toy CRUD, but not over-engineered platform theatre.
+The backend is the source of truth. API contracts, persistence, audit history, and template-version traceability should be represented in the service rather than delegated to a frontend or external workflow system.
 
-## Stack
+## Stack to Preserve
 
 - Java 25
 - Spring Boot 4
 - PostgreSQL
 - Flyway
 - Spring Web
-- Spring HATEOAS
 - Spring Data JPA
 - Jakarta Validation
 - Spring Boot Actuator
 - SpringDoc OpenAPI
 - JUnit 5
 - Testcontainers
-- Docker Compose for local/runtime support
+- Checkstyle
+- Docker and Docker Compose for local/runtime support
+- GitHub Actions CI
+- Project documentation under `README.md` and `docs/`
 
 ## Engineering Standards
 
-- Keep the solution intentionally scoped and production-minded.
+- Keep the app small, production-minded, and interview-friendly.
 - Prefer simple, readable code over clever abstractions.
-- Use UUIDs for stable entity identity.
+- Prioritise build correctness and a clean developer experience.
 - Do not expose JPA entities directly from controllers.
 - Use request/response DTOs or records for API contracts.
 - Validate request DTOs with Jakarta Validation.
 - Use clean error handling with Problem Details-style responses.
 - Use Flyway migrations, not Hibernate auto-DDL.
-- Add meaningful tests for business logic and API behaviour.
+- Add clear tests for business rules, API behaviour, persistence, and audit expectations.
+- Keep Checkstyle passing and avoid style-only churn.
 - Keep README and docs updated as implementation decisions change.
 - When documenting decisions, include alternatives considered and why they were not chosen.
 - Avoid generic enterprise phrasing. Prefer clear, pragmatic reasoning.
 
-## Domain Rules
+## Domain Model
 
-- Artist has stable identity and a primary display name.
-- Artist aliases must be modelled explicitly.
-- Artist aliases should be treated as realistic metadata, not just a string field.
-- Some artists may have many aliases, so aliases should be stored as separate records.
-- Aliases do not count as separate artists for Artist of the Day.
-- Tracks belong to one artist.
-- Some artists may have very large catalogues, so track retrieval must avoid unbounded responses.
-- Fetching tracks must be paginated.
-- Artist of the Day must be deterministic, fair, and cyclical.
-- Use UTC date and an injectable Clock for testability.
-- Keep the model focused on artists, aliases, and tracks. Do not expand into full copyright/work/rightsholder modelling unless explicitly requested.
+Keep the model focused on the document generation lifecycle:
+
+- `DocumentTemplate`: a named template family, such as a loan agreement or customer statement.
+- `DocumentTemplateVersion`: an immutable version of a template used by generation requests so historical outputs remain traceable.
+- `DocumentGenerationRequest`: a durable request to generate a document from a specific template version and input payload.
+- `GeneratedDocument`: metadata about the generated output, including content type, checksum, storage reference, status, timestamps, and template version linkage.
+- `AuditEvent`: append-only lifecycle events that make important request and document actions explainable.
+
+## Domain Rules and Priorities
+
+- Treat template versions as immutable once used by a generation request.
+- Preserve traceability from every generated document back to the exact template version used.
+- Record meaningful audit events for lifecycle transitions and important failure cases.
+- Keep generation deterministic and testable where practical.
+- Use bounded and paginated retrieval for collections that can grow.
+- Prefer honest metadata and simulated output over pretending to provide full production rendering.
+- Make failure states explicit and observable rather than hiding them behind generic success responses.
+- Prioritise documentation honesty: explain what is implemented, what is simulated, and what would be added in production.
 
 ## Prioritisation
 
@@ -67,15 +77,15 @@ When suggesting extra technology, explain which priority level it belongs to and
 
 Do not implement unless explicitly asked later:
 
-- Full frontend
-- User accounts
-- Login/authentication
+- Frontend application
+- Authentication or authorization
+- Real document rendering engine
+- Object storage integration
+- Background queues or workers
 - Redis
-- OpenSearch/Elasticsearch
-- Kafka/SNS/SQS
+- Kafka or other event streaming platforms
 - Kubernetes
-- OpenTofu/Terraform
-- Spring AI
-- Complex copyright/work modelling
+- Workflow engine
+- Large-scale infrastructure automation
 
-Mention these as future production improvements where relevant.
+Mention these as future production improvements where relevant, but keep the current codebase focused on a small backend interview demo.
