@@ -13,6 +13,7 @@ import com.jadelomeiri.documentgenerator.TestcontainersConfiguration;
 import com.jadelomeiri.documentgenerator.audit.AuditEventRepository;
 import com.jadelomeiri.documentgenerator.document.GeneratedDocumentDraft;
 import com.jadelomeiri.documentgenerator.document.GeneratedDocumentRepository;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -81,15 +82,12 @@ class GenerationFailureIntegrationTests {
 						containsInAnyOrder("GENERATION_REQUEST_CREATED", "GENERATION_FAILED")));
 	}
 
-	private String generationRequestJson() {
-		return """
-				{
-				  "templateVersionId": "%s",
-				  "customerReference": "customer-123",
-				  "requestedBy": "caseworker-456",
-				  "inputPayloadJson": "{\"loanAmount\":125000,\"currency\":\"GBP\"}"
-				}
-				""".formatted(LOAN_AGREEMENT_VERSION_ID);
+	private String generationRequestJson() throws Exception {
+		return objectMapper.writeValueAsString(Map.of(
+				"templateVersionId", LOAN_AGREEMENT_VERSION_ID,
+				"customerReference", "customer-123",
+				"requestedBy", "caseworker-456",
+				"inputPayloadJson", "{\"loanAmount\":125000,\"currency\":\"GBP\"}"));
 	}
 
 	@TestConfiguration

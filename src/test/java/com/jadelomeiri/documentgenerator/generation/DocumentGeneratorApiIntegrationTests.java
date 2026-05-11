@@ -16,6 +16,7 @@ import com.jadelomeiri.documentgenerator.TestcontainersConfiguration;
 import com.jadelomeiri.documentgenerator.audit.AuditEventRepository;
 import com.jadelomeiri.documentgenerator.document.GeneratedDocumentRepository;
 import com.jadelomeiri.documentgenerator.template.DocumentTemplateVersionRepository;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -147,14 +148,11 @@ class DocumentGeneratorApiIntegrationTests {
 				.getId()).isEqualTo(LOAN_AGREEMENT_VERSION_ID);
 	}
 
-	private String generationRequestJson(UUID templateVersionId) {
-		return """
-				{
-				  "templateVersionId": "%s",
-				  "customerReference": "customer-123",
-				  "requestedBy": "caseworker-456",
-				  "inputPayloadJson": "{\"loanAmount\":125000,\"currency\":\"GBP\"}"
-				}
-				""".formatted(templateVersionId);
+	private String generationRequestJson(UUID templateVersionId) throws Exception {
+		return objectMapper.writeValueAsString(Map.of(
+				"templateVersionId", templateVersionId,
+				"customerReference", "customer-123",
+				"requestedBy", "caseworker-456",
+				"inputPayloadJson", "{\"loanAmount\":125000,\"currency\":\"GBP\"}"));
 	}
 }
