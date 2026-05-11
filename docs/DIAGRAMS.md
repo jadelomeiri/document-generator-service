@@ -1,136 +1,155 @@
-# Architecture Diagrams and Presentation Notes
+# Diagrams
 
-These diagrams are reviewer aids for the current take-home implementation. Future infrastructure is labelled explicitly and is not implemented in this repository.
+These diagrams describe the intended Document Generator Service architecture. They are planning diagrams for the migration and should not be read as a claim that the Java implementation has already been converted.
 
-## Current application architecture
-
-```mermaid
-flowchart TB
-    client["Client / Swagger UI"] --> rest["Spring Boot REST API\nSpring Web MVC + validation + Problem Details"]
-
-    rest --> artistApi["Artist API\n/api/v1/artists"]
-    rest --> trackApi["Track API\n/api/v1/artists/{artistId}/tracks"]
-    rest --> homepageApi["Homepage / Artist of the Day API\n/api/v1/homepage/artist-of-the-day"]
-    rest --> actuator["Actuator / Prometheus\n/actuator/health\n/actuator/prometheus"]
-
-    artistApi --> artistService["ArtistService"]
-    trackApi --> trackService["TrackService"]
-    homepageApi --> aotdService["ArtistOfTheDayService\nUTC Clock + deterministic rotation"]
-
-    artistService --> artistRepo["ArtistRepository"]
-    artistService --> aliasRepo["ArtistAliasRepository"]
-    trackService --> trackRepo["TrackRepository"]
-    trackService --> artistRepo
-    aotdService --> artistRepo
-
-    artistRepo --> postgres[("PostgreSQL")]
-    aliasRepo --> postgres
-    trackRepo --> postgres
-
-    flyway["Flyway migrations\nsrc/main/resources/db/migration"] --> postgres
-
-    subgraph packages["Source package structure"]
-        artistPkg["artist + artist/api"]
-        trackPkg["track + track/api"]
-        homepagePkg["homepage + homepage/api"]
-        commonPkg["common/api, common/error, common/time"]
-    end
-```
-
-## Local runtime and CI/testing setup
+## System context
 
 ```mermaid
 flowchart LR
-    dev["Developer"] --> gradle["Gradle build\n./gradlew clean build --no-daemon"]
-    gradle --> unit["Unit/service tests\nJUnit 5"]
-    gradle --> mvc["MockMvc integration tests"]
-    mvc --> tcpg[("Testcontainers PostgreSQL")]
-    gradle --> checkstyle["Checkstyle"]
-    gradle --> bootJar["Spring Boot package"]
-
-    dev --> compose["Docker Compose"]
-    compose --> app["app service\nSpring Boot prod profile\nhttp://localhost:8080"]
-    compose --> localPg[("postgres service\nPostgreSQL 18\nlocalhost:5432")]
-    app --> localPg
-
-    app --> swagger["Swagger UI\n/swagger-ui/index.html"]
-    app --> health["Actuator URLs\n/actuator/health\n/actuator/health/liveness\n/actuator/health/readiness"]
-    app --> prom["Prometheus metrics\n/actuator/prometheus"]
-
-    gha["GitHub Actions\nPRs + pushes to main"] --> setupJava["Java 25 + Gradle setup"]
-    setupJava --> ciBuild["./gradlew clean build --no-daemon"]
-    ciBuild --> unit
-    ciBuild --> mvc
-    ciBuild --> checkstyle
+    user["Lending or operations user"] --> frontend["Frontend flow\n(documented only)"]
+    frontend --> api["Document Generator Service\nSpring Boot REST API"]
+    api --> db[("PostgreSQL\nsource of truth")]
+    api --> renderer["Generation boundary\nfirst slice: simple metadata producer"]
+    renderer -. "future" .-> realRenderer["PDF/DOCX renderer"]
+    api -. "future" .-> storage["Object storage"]
 ```
 
-## Future production architecture (not implemented)
+## Planned backend components
 
 ```mermaid
 flowchart TB
-    users["Users / API clients"] --> alb["Future: Application Load Balancer"]
-    alb --> runtime["Future: ECS/Fargate or equivalent\ncontainer runtime"]
+    rest["REST API"] --> templateApi["Template API"]
+    rest --> requestApi["Generation Request API"]
+    rest --> documentApi["Generated Document Metadata API"]
+    rest --> auditApi["Audit API"]
 
-    runtime --> rds[("Future: RDS PostgreSQL")]
-    runtime --> secrets["Future: Secrets Manager\ndatasource credentials"]
-    runtime --> metrics["Future: metrics/logging\nPrometheus-compatible metrics\ncentralised logs and alerts"]
+    templateApi --> templateService["Template Service"]
+    requestApi --> requestService["Generation Request Service"]
+    documentApi --> documentService["Generated Document Metadata Service"]
+    auditApi --> auditService["Audit Service"]
 
-    gha["GitHub Actions"] --> build["Build + test\n./gradlew clean build --no-daemon"]
-    build --> image["Build container image"]
-    image --> ecr["Future: ECR"]
-    ecr --> runtime
+    requestService --> generationBoundary["Generation Boundary"]
+    requestService --> auditService
+    templateService --> auditService
+    documentService --> auditService
 
-    redis["Future optional: Redis\nArtist of the Day / hot-read cache"]
-    search["Future optional: OpenSearch\nfuzzy artist, alias, track search"]
-    messaging["Future optional: SNS/SQS or Kafka\nmetadata change events"]
+    templateService --> templateRepo["Template Repository"]
+    requestService --> requestRepo["Generation Request Repository"]
+    documentService --> documentRepo["Generated Document Repository"]
+    auditService --> auditRepo["Audit Event Repository"]
 
-    runtime -.-> redis
-    runtime -.-> search
-    runtime -.-> messaging
-
-    classDef future fill:#fff7ed,stroke:#f97316,color:#7c2d12,stroke-dasharray: 5 5;
-    class alb,runtime,rds,secrets,metrics,ecr,redis,search,messaging future;
+    templateRepo --> postgres[("PostgreSQL")]
+    requestRepo --> postgres
+    documentRepo --> postgres
+    auditRepo --> postgres
 ```
 
-## 15-minute presentation outline
+## Core data relationships
 
-1. **Problem understanding (1 minute)**
-   - Build a pragmatic music metadata API for canonical artists, aliases, tracks, and a homepage Artist of the Day.
-   - Keep the scope useful for a streaming-platform-like product without adding unrelated platform features.
+The core model uses five first-class concepts: document templates, template versions, generation requests, generated document metadata, and audit events.
 
-2. **Domain model (2 minutes)**
-   - `Artist` is the stable canonical identity with a primary display name.
-   - `ArtistAlias` is explicit metadata linked to an artist, not a separate artist.
-   - `Track` belongs to exactly one artist and is retrieved with bounded pagination.
-   - Artist of the Day rotates over canonical artists only, so aliases do not skew fairness.
+```mermaid
+erDiagram
+    DOCUMENT_TEMPLATE ||--o{ DOCUMENT_TEMPLATE_VERSION : has
+    DOCUMENT_TEMPLATE_VERSION ||--o{ GENERATION_REQUEST : used_by
+    GENERATION_REQUEST ||--o| GENERATED_DOCUMENT : produces
+    GENERATION_REQUEST ||--o{ AUDIT_EVENT : records
+    DOCUMENT_TEMPLATE ||--o{ AUDIT_EVENT : records
+    DOCUMENT_TEMPLATE_VERSION ||--o{ AUDIT_EVENT : records
+    GENERATED_DOCUMENT ||--o{ AUDIT_EVENT : records
 
-3. **API walkthrough (3 minutes)**
-   - Create, fetch, and update artists.
-   - Add and list aliases.
-   - Add and page through tracks for an artist.
-   - Fetch `/api/v1/homepage/artist-of-the-day` and inspect contracts in Swagger UI.
-   - Show validation, duplicate handling, and Problem Details-style error responses.
+    DOCUMENT_TEMPLATE {
+        uuid id
+        string name
+        string description
+        timestamp created_at
+        timestamp updated_at
+    }
 
-4. **Architecture (3 minutes)**
-   - Package-by-feature modular monolith: artist, track, homepage, and common support packages.
-   - Controller to service to repository flow keeps the implementation readable.
-   - PostgreSQL is the source of truth; Flyway owns schema changes; Hibernate validates only.
-   - Actuator and Prometheus endpoints provide basic operational visibility.
+    DOCUMENT_TEMPLATE_VERSION {
+        uuid id
+        uuid template_id
+        int version_number
+        string status
+        timestamp created_at
+        timestamp activated_at
+    }
 
-5. **Testing and production readiness (2 minutes)**
-   - Unit/service tests cover business rules such as alias handling, track normalisation, and Artist of the Day determinism.
-   - MockMvc and Testcontainers PostgreSQL tests cover real API and database behaviour.
-   - GitHub Actions runs the same clean Gradle build as the local quality gate.
-   - Docker Compose supports local app plus PostgreSQL runtime checks.
+    GENERATION_REQUEST {
+        uuid id
+        uuid template_version_id
+        string status
+        string requester_reference
+        timestamp created_at
+        timestamp updated_at
+        string failure_reason
+    }
 
-6. **Trade-offs (2 minutes)**
-   - Modular monolith instead of microservices because the domain is small and tightly related.
-   - Page-based pagination is simple and bounded; cursor pagination is a future option for very large catalogues.
-   - Artist of the Day is computed on request for simplicity; production could precompute or cache once per UTC day.
-   - Authentication, search, messaging, and distributed caching are intentionally out of take-home scope.
+    GENERATED_DOCUMENT {
+        uuid id
+        uuid generation_request_id
+        string content_type
+        string checksum
+        string storage_reference
+        timestamp created_at
+    }
 
-7. **Next improvements (2 minutes)**
-   - Add OAuth2/OIDC and scope-protected write operations.
-   - Add a production deployment path such as ECR, ECS/Fargate, RDS, Secrets Manager, dashboards, and alerts.
-   - Add read optimisation where justified: daily cache/precompute, read replicas, or cursor pagination.
-   - Add OpenSearch or messaging only when product needs or integration consumers require them.
+    AUDIT_EVENT {
+        uuid id
+        string event_type
+        string target_type
+        uuid target_id
+        string actor_reference
+        timestamp occurred_at
+    }
+```
+
+## Generation request lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> RECEIVED
+    RECEIVED --> VALIDATED: request passes validation
+    RECEIVED --> FAILED: request cannot be accepted
+    VALIDATED --> GENERATING: generation starts
+    GENERATING --> COMPLETED: metadata stored
+    GENERATING --> FAILED: generation fails
+    COMPLETED --> [*]
+    FAILED --> [*]
+```
+
+## First-slice sequence
+
+```mermaid
+sequenceDiagram
+    participant UI as Frontend flow
+    participant API as REST API
+    participant DB as PostgreSQL
+    participant GEN as Generation boundary
+
+    UI->>API: POST generation request
+    API->>API: Validate request DTO
+    API->>DB: Insert generation request
+    API->>DB: Insert audit event: request created
+    API->>DB: Update status to GENERATING
+    API->>GEN: Generate document metadata
+    GEN-->>API: Metadata result
+    API->>DB: Insert generated document metadata
+    API->>DB: Update status to COMPLETED
+    API->>DB: Insert audit event: completed
+    API-->>UI: Generation request response
+```
+
+## Future production extensions
+
+```mermaid
+flowchart LR
+    api["Document Generator Service"]
+    api -. "future async processing" .-> queue["Queue or job worker"]
+    queue -.-> renderer["Rendering service"]
+    renderer -.-> storage["Object storage"]
+    api -. "future notifications" .-> webhook["Webhook/callback"]
+    api -. "future search" .-> search["Search index"]
+```
+
+These extensions are intentionally not part of the first implementation slice. They are useful discussion points only after the core lifecycle is implemented and tested.

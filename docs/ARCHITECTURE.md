@@ -1,128 +1,137 @@
 # Architecture
 
-## Overview
+## Current state
 
-The service is a single Spring Boot application using a layered architecture:
+This repository is in a documentation-first migration phase for the Document Generator Service. The Java implementation has not been migrated yet, so this document describes the intended backend architecture rather than claiming completed runtime behaviour.
 
-Controller -> Service -> Repository -> PostgreSQL
+The goal is a small, production-minded Spring Boot backend for a fintech/lending document generator. It should be straightforward to run, test, review, and explain in an interview.
 
-The implementation is intentionally a modular monolith. The current domain is small and tightly related, so splitting it into microservices would add operational complexity without a clear benefit.
+## Architectural style
 
-## Main Components
+Use a modular monolith with clear package boundaries rather than starting with microservices.
 
-- Artist API: create artists, update primary names, manage aliases
-- Track API: add tracks and fetch tracks for an artist
-- Homepage API: return the deterministic Artist of the Day
-- Persistence: PostgreSQL with Flyway migrations
-- API documentation: OpenAPI / Swagger
-- Observability: Spring Boot Actuator health/probes, info, and Prometheus metrics endpoint
-- Configuration: common, local, and production-like Spring profiles
-- Delivery: GitHub Actions CI, Checkstyle, Dependabot, and Testcontainers-backed tests
+Expected modules or package areas:
 
-## Runtime Configuration
+- Template management.
+- Template version management.
+- Generation request lifecycle.
+- Generated document metadata.
+- Audit events.
+- Shared API/error handling support.
 
-The application uses Spring profile-specific configuration:
+This keeps the first implementation simple while still leaving clean seams for future extraction if the system grows.
 
-- common configuration for safe defaults shared by all environments
-- `local` profile for Docker Compose-friendly PostgreSQL defaults
-- `prod` profile for production-like runs where datasource values must be supplied through environment variables
+## High-level flow
 
-This keeps the same application artefact deployable across environments while avoiding committed production credentials.
+1. A client submits a document generation request against a specific template version.
+2. The backend validates the request and stores a generation request record.
+3. The backend records an audit event for request creation.
+4. A generation service boundary processes the request.
+5. The backend stores generated document metadata, such as checksum, content type, storage reference, and completion timestamp.
+6. The backend updates request status to a terminal state and records another audit event.
 
-## Data Model
+For the first implementation, this flow can run synchronously. The explicit request status model keeps the design compatible with later asynchronous processing.
 
-### Artist
+## Domain model
 
-Represents stable artist identity.
+The intended domain model has five first-class concepts. They are listed separately because template versioning, request lifecycle, generated metadata, and audit history should not be collapsed into one generic document record.
 
-### ArtistAlias
+### Document template
 
-Represents alternative names for the same artist identity.
+A document template represents a business document family, such as a loan agreement, disclosure pack, statement, or offer letter.
 
-Aliases are not separate artists and do not participate in Artist of the Day rotation.
+Templates should have stable UUID identity and human-readable names. The template record should not be mutated in a way that breaks historical traceability.
 
-### Track
+### Template version
 
-Represents track metadata belonging to an artist.
+A template version is an immutable snapshot used for generation.
 
-## Artist of the Day
+Generation requests should reference a specific template version so the system can answer, later, exactly which template was used. A later version of the same template should not change the meaning of older generated documents.
 
-The daily artist is selected using deterministic rotation over canonical artists only.
+### Generation request
 
-Aliases are deliberately excluded from the rotation so that artists with many aliases are not overrepresented.
+A generation request is the backend-owned record of a request to produce a document.
 
-The take-home implementation uses:
+It should include the selected template version, requester context, submitted payload or payload reference, timestamps, current status, and failure reason when relevant.
 
-1. Canonical artists sorted by `created_at ASC, id ASC`
-2. UTC date from an injectable `Clock`
-3. A fixed epoch date
-4. `daysSinceEpoch % artistCount` to select the daily artist
+A deliberately small first status lifecycle is enough:
 
-This avoids random selection and keeps the endpoint deterministic: the same catalogue and UTC date produce the same Artist of the Day.
+- `RECEIVED`
+- `VALIDATED`
+- `GENERATING`
+- `COMPLETED`
+- `FAILED`
 
-The implementation calculates the selection on request using a count plus a one-row sorted lookup rather than loading the full catalogue into memory.
+### Generated document metadata
 
-In a full production system, this would likely be precomputed or cached once per UTC day so the homepage endpoint remains a cheap read and the daily artist cannot change during the day if artists are added.
+Generated document metadata describes the output without requiring the first version to store the actual document bytes.
 
-## Data Model Assumptions
+Useful metadata includes generated document id, generation request id, template version id, content type, checksum, size, storage reference, creation timestamp, and any failure details if generation did not complete.
 
-The model separates artist identity from artist names.
+### Audit event
 
-This matters because artist names are not always stable. An artist may perform under multiple aliases, change their primary display name, or have one-off aliases used for specific releases.
+Audit events are append-only records for meaningful lifecycle actions.
 
-The service therefore uses:
+Examples include template creation, template version creation, template version activation, generation request creation, status changes, generation completion, and generation failure.
 
-- `Artist` as the stable canonical identity
-- `ArtistAlias` as alternate names linked to that identity
-- `Track` as metadata linked to the stable artist ID
+Audit events should include enough context to support operational review: event type, target resource, timestamp, actor/requester context, and structured event details where useful.
 
-Aliases are deliberately not treated as separate artists. This prevents duplicate catalogues and avoids unfairly weighting artists with many aliases in the Artist of the Day rotation.
+## API boundaries
 
-Track retrieval is paginated because some artists may have very large catalogues. Even though the requirement says to fetch tracks for an artist, the API should avoid unbounded responses in a customer-facing service.
+The API should expose request/response DTOs rather than persistence entities.
 
-## API Scope
+Expected first-slice resources:
 
-The API includes a small set of artist endpoints even though the task only explicitly mentions editing an artist name.
+- Templates.
+- Template versions.
+- Generation requests.
+- Generated document metadata.
+- Audit events for a request or resource.
 
-This is intentional. Editing an artist name and adding tracks to an artist catalogue require a stable artist resource. Creating and retrieving that artist makes the service usable, testable, and easier to reason about.
+The API should use validation at the boundary and Problem Details-style error responses for invalid input, missing resources, invalid state transitions, and conflicts.
 
-The API does not attempt to become a full catalogue management platform. It only includes endpoints that support the required behaviours and the alias model.
+## Persistence
 
-## Testing and Delivery
+PostgreSQL should be the source of truth. Flyway should own schema changes.
 
-The project includes Testcontainers-backed integration tests using PostgreSQL rather than an in-memory database.
+Important persistence expectations:
 
-This gives confidence that Flyway migrations, PostgreSQL-specific constraints, repository behaviour, and API flows work against the same class of database used by the application.
+- UUID primary identifiers for stable external identity.
+- Immutable template versions after creation.
+- Indexed lookups for request id, template id, template version id, and audit target references.
+- Explicit status columns rather than deriving status from logs.
+- Append-only audit table.
 
-GitHub Actions CI runs `./gradlew clean build`, which covers compilation, Checkstyle, tests, and packaging. A lightweight Checkstyle configuration is used for basic code hygiene, and Dependabot is enabled for Gradle and GitHub Actions dependency maintenance.
+## Rendering boundary
 
-## Production Deployment Considerations
+The first implementation should not integrate a real PDF or DOCX rendering engine.
 
-For production, the natural deployment target would be a containerised Spring Boot service on AWS ECS/Fargate behind a load balancer, backed by managed PostgreSQL.
+Instead, use a small generation service boundary that can produce deterministic metadata for the demo and can later be replaced by a real renderer. This keeps the first slice focused on lifecycle, persistence, auditability, and API design.
 
-Future production additions could include:
+## Frontend relationship
 
-- Redis/CDN caching for hot reads and Artist of the Day
-- OpenSearch for fuzzy artist, alias, and track search
-- SNS/SQS or Kafka for asynchronous metadata events
-- Read replicas for high-volume read traffic
-- OAuth2/OIDC for write operation security
-- OpenTofu for infrastructure provisioning
+The frontend is not implemented. It is a consumer of backend state.
 
-These are documented as future evolutions rather than implemented in the take-home scope.
+The backend should be the source of truth for:
 
-## Observability
+- Template and template version selection.
+- Generation request status.
+- Generated document metadata.
+- Audit history.
 
-The service uses Spring Boot Actuator and Micrometer/Prometheus for operational visibility.
+The frontend should not infer request state independently.
 
-The common and production-like configuration expose a limited set of Actuator endpoints:
+## Deliberately deferred production concerns
 
-- `/actuator/health`
-- `/actuator/health/liveness`
-- `/actuator/health/readiness`
-- `/actuator/info`
-- `/actuator/prometheus`
+These are valid production topics, but they are not part of the first implementation slice:
 
-Health details are hidden by default and in production-like runs. The local profile exposes additional metrics and health details to support developer troubleshooting.
-
-The Prometheus endpoint includes application-level tags so metrics can be identified by service name.
+- Authentication and fine-grained authorisation.
+- Real rendering engine integration.
+- Object storage integration.
+- Queue-backed asynchronous generation.
+- Document retention and legal hold policies.
+- Malware scanning for uploaded template assets.
+- Workflow approvals for template publication.
+- Search infrastructure.
+- Distributed caching.
+- Kubernetes or infrastructure-as-code.

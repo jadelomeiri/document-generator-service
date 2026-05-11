@@ -1,162 +1,131 @@
-# Production Readiness Plan
+# Production Readiness
 
-This document separates what is essential for the take-home submission from what would be important in a full production system.
+This document prioritises production-minded work for the Document Generator Service. It is a planning guide for the migration; it does not claim that the Java implementation has already been converted.
 
-The goal is to show production awareness while keeping the implementation realistic for a time-boxed exercise.
+The goal is to keep the system small enough for an interview demo while showing the right instincts for fintech/lending software: traceability, versioning, clear state, validation, and testability.
 
-## P0 — Must-have for the take-home
+## Priority levels
 
-These are required for a credible submission.
+- **P0**: Required for a credible first backend slice.
+- **P1**: Useful production-minded polish once P0 is complete.
+- **P2**: Future production improvements to discuss, not build unless explicitly requested.
 
-### Core functionality
+## P0: First credible backend slice
 
-- Create artists
-- Edit artist primary name
-- Add aliases to artists
-- Add tracks to artists
-- Fetch tracks for an artist
-- Fetch Artist of the Day
+### Domain and persistence
 
-### Domain correctness
+P0 starts with the same five first-class concepts used across the design docs:
 
-- Stable artist identity using UUIDs
-- Artist aliases modelled explicitly
-- Tracks linked to stable artist IDs, not names
-- Aliases excluded from Artist of the Day rotation
-- Deterministic fair Artist of the Day cycle
+- Document templates with stable UUID identity.
+- Immutable template versions.
+- Generation requests linked to a specific template version.
+- Explicit request status lifecycle.
+- Generated document metadata separate from document bytes.
+- Append-only audit events for meaningful lifecycle actions.
+- PostgreSQL as the source of truth.
+- Flyway migrations for schema changes.
 
-### API quality
+### API behaviour
 
-- RESTful endpoints under `/api/v1`
-- Request and response DTOs
-- Jakarta Validation on incoming requests
-- Clean error responses using Problem Details-style responses
-- Pagination for track retrieval
-- Lightweight HATEOAS links for discoverability
-- OpenAPI / Swagger documentation
+- Request/response DTOs rather than exposing persistence entities.
+- Jakarta Validation for API inputs.
+- Problem Details-style errors for validation failures, missing resources, invalid state transitions, and conflicts.
+- Clear endpoint names for templates, template versions, generation requests, generated document metadata, and audit events.
+- Pagination for list endpoints that can grow, especially request and audit history.
 
-### Persistence
+### Business rules
 
-- PostgreSQL as source of truth
-- Flyway migrations
-- Useful constraints and indexes
-- No reliance on Hibernate auto-DDL for schema creation
+- A generation request must reference an existing template version.
+- A completed request should have generated document metadata.
+- A failed request should capture a reason suitable for operations without leaking sensitive internals.
+- Template versions should not be mutated after use by a generation request.
+- Status transitions should be explicit and tested.
+- Audit events should be recorded for request creation, status changes, completion, and failure.
 
 ### Testing
 
-- Unit/service tests for Artist of the Day rotation, service-level normalisation, and exception mapping
-- API/integration tests for main user flows
-- Testcontainers-backed PostgreSQL tests where useful
-
-### Local run
-
-- Clear README instructions
-- Docker Compose for PostgreSQL
-- Application can run locally from Gradle with `SPRING_PROFILES_ACTIVE=local`
-- The local profile keeps Docker Compose-friendly datasource defaults while still allowing `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD` overrides
-- Docker Compose support for running the app and PostgreSQL together locally
-
-## P1 — Important if time allows
-
-These are valuable production-readiness improvements, but should not block the core task.
-
-### Observability
-
-- Spring Boot Actuator health endpoint
-- Prometheus metrics endpoint
-- Useful Actuator endpoints are `/actuator/health`, `/actuator/health/liveness`, `/actuator/health/readiness`, and `/actuator/prometheus`
-- Common and production-like configuration expose only `health`, `info`, and `prometheus`; the local profile additionally exposes `metrics` for developer inspection
-- Health details are hidden by default and in production-like runs, and shown locally for troubleshooting
-- Basic structured logging
-- Useful application logs around create/update operations
-- Document key SLIs:
-    - request latency
-    - error rate
-    - database connection health
-    - Artist of the Day endpoint availability
-
-### CI/CD
-
-- GitHub Actions workflow present for pull requests and pushes to `main`
-- Builds with Java 25 and runs `./gradlew clean build --no-daemon`
-- Gradle dependency caching and wrapper validation are handled by the Gradle GitHub Action
-- Unit and Testcontainers-backed integration tests run as part of the build
-- Dependabot weekly update checks are present for Gradle dependencies and GitHub Actions
-- Heavier CI/CD concerns such as Sonar, SpotBugs, PMD, security scanning, coverage thresholds, deployment pipelines, and Docker image publishing remain future improvements
-
-### Containerisation
-
-- Dockerfile added with a multi-stage Java 25 build and Java 25 runtime image
-- Docker image build intentionally runs `./gradlew clean bootJar --no-daemon` rather than tests; CI owns the full `./gradlew clean build --no-daemon` gate, including Testcontainers-backed tests
-- Docker Compose can run the app and PostgreSQL together for local production-like checks
-- Environment-variable based configuration
-- Production-like runs use the `prod` profile and require datasource settings from environment variables rather than committed fallback credentials
-
-### Code quality
-
-- Lightweight Checkstyle is active as part of `./gradlew check` and `./gradlew clean build`
-- Rules intentionally cover basic hygiene such as line length, wildcard imports, braces, whitespace, and one top-level class per file
-- Javadoc requirements and noisy enterprise rule sets are deliberately avoided for this take-home
-- Heavier static analysis such as Sonar, SpotBugs, PMD, and coverage gates remains a future improvement
+- Unit tests for status transition rules.
+- Service tests for audit event creation.
+- API tests for validation errors and happy paths.
+- Persistence/integration tests for schema constraints and repository behaviour where useful.
+- Full Gradle build before Java changes are considered complete.
 
 ### Documentation
 
-- Architecture document
-- Decision log
-- Production readiness plan
-- API examples
-- Known trade-offs and future improvements
+- README reflects the current implementation state honestly.
+- Task brief, decisions, architecture, diagrams, frontend flow, production readiness, presentation notes, and TODO stay aligned.
+- API examples are added after endpoints exist.
 
-## P2 — Future production improvements
+## P1: Production-minded polish after P0
 
-These are realistic production concerns, but outside the time-boxed take-home implementation.
+### Operational readiness
 
-### Security
+- Actuator health endpoints.
+- Liveness and readiness probes if the runtime setup supports them.
+- Structured logging with request correlation.
+- Basic application metrics for request counts, failures, and generation duration.
+- Docker Compose support for local application and database execution.
 
-- OAuth2/OIDC resource server
-- Protect write operations with scopes/roles
-- Secrets managed through AWS Secrets Manager or equivalent
-- Rate limiting at gateway/load balancer level
+### API and client experience
 
-### Scalability
+- OpenAPI documentation for implemented endpoints.
+- Clear examples for common request and response bodies.
+- Consistent error response structure.
+- Idempotency key support for generation request creation if duplicate submissions become a realistic concern.
 
-- Daily cache or precomputed `artist_of_the_day` table for Artist of the Day
-- Read replicas for high-volume reads
-- Cursor/keyset pagination for very large catalogues
-- OpenSearch for fuzzy artist, alias, and track search
+### Data and audit quality
 
-### Architecture evolution
+- Actor/requester context carried through request and audit records.
+- Failure reason taxonomy for common operational failures.
+- Indexes for common lookups by request status, template version, created timestamp, and audit target.
+- Retention policy documented, even if not automated in the demo.
 
-- Publish metadata events when artists, aliases, or tracks change
-- Use SNS/SQS or Kafka for async consumers
-- Split into separate services only if ownership, scale, or deployment cadence require it
+### Test quality
 
-### Deployment
+- Testcontainers-backed PostgreSQL tests for migration and persistence behaviour.
+- Contract-style tests for API response shapes.
+- Edge-case tests for invalid status transitions and duplicate active template versions.
 
-- AWS ECS/Fargate
-- RDS PostgreSQL
-- Application Load Balancer
-- OpenTofu infrastructure definitions
-- Blue/green or rolling deployments
+## P2: Future production improvements, not first-slice build items
 
-### Observability maturity
+These are valid production topics but should remain future discussion points unless explicitly requested.
 
-- Distributed tracing with OpenTelemetry
-- Dashboards and alerting
-- SLOs for key endpoints
-- Error budgets
-- Runbook for incidents
+### Asynchronous processing
 
-## Deliberate non-goals for this submission
+- Queue-backed generation workers.
+- Retry policy with dead-letter handling.
+- Worker-level concurrency control.
+- Timeout handling for slow rendering.
 
-The following are intentionally not implemented in this submission unless explicitly requested later:
+### Document storage and rendering
 
-- Full frontend
-- User login system
-- Redis or distributed caching
-- OpenSearch
-- Messaging/event bus
-- Kubernetes
-- OpenTofu
-- Full tracing stack
-- Full copyright/rightsholder/work modelling
+- Real PDF/DOCX rendering engine integration.
+- Object storage for generated files.
+- Content checksums and download authorisation.
+- Malware scanning for uploaded template assets.
+- Preview generation.
+
+### Governance and security
+
+- Authentication and authorisation.
+- Template approval workflow.
+- Document retention and legal hold policies.
+- Encryption at rest and key management.
+- Redaction or minimisation of sensitive payload data.
+
+### Scale and platform
+
+- Search indexing for operational lookup.
+- Distributed cache for specific hot reads.
+- Webhook or callback notifications.
+- Kubernetes deployment manifests.
+- Infrastructure-as-code.
+- External observability dashboards and alerting.
+
+## Readiness checklist before presenting
+
+- [ ] Documentation states clearly what is implemented and what is planned.
+- [ ] No stale domain wording from the previous task remains in useful docs.
+- [ ] Java migration is not started until the documentation direction is accepted.
+- [ ] First implementation plan stays focused on templates, versions, requests, generated metadata, and audit events.
+- [ ] P2 ideas are described as future improvements, not part of the first build.
