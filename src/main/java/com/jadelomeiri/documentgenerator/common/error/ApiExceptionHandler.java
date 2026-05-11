@@ -55,8 +55,14 @@ public class ApiExceptionHandler {
 		ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
 		problem.setType(URI.create("https://document-generator-service/errors/generated-document-not-found"));
 		problem.setTitle("Generated document not found");
-		problem.setDetail("No generated document exists with id " + ex.getDocumentId() + ".");
-		problem.setProperty("documentId", ex.getDocumentId());
+		if (ex.getGenerationRequestId() == null) {
+			problem.setDetail("No generated document exists with id " + ex.getDocumentId() + ".");
+			problem.setProperty("documentId", ex.getDocumentId());
+		} else {
+			problem.setDetail("No generated document exists for generation request "
+					+ ex.getGenerationRequestId() + ".");
+			problem.setProperty("generationRequestId", ex.getGenerationRequestId());
+		}
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
 	}
 

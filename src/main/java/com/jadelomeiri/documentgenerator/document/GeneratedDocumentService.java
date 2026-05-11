@@ -33,6 +33,6 @@ public class GeneratedDocumentService {
 
 	public GeneratedDocument getByGenerationRequest(UUID requestId) {
 		return generatedDocumentRepository.findByGenerationRequestId(requestId)
-				.orElseThrow(() -> new GeneratedDocumentNotFoundException(requestId));
+				.orElseThrow(() -> GeneratedDocumentNotFoundException.forGenerationRequest(requestId));
 	}
 }

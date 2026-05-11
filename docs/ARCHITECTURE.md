@@ -65,7 +65,7 @@ A deliberately small first status lifecycle is enough:
 
 Generated document metadata describes the output without requiring the first version to store the actual document bytes.
 
-Useful metadata includes generated document id, generation request id, template version id, content type, checksum, size, storage reference, creation timestamp, and any failure details if generation did not complete.
+Implemented metadata includes generated document id, generation request id, template version id, content type, checksum, storage reference, and creation timestamp. Generation failures are stored on the generation request rather than on a generated document row, because no document is created for a failed request.
 
 ### Audit event
 
@@ -85,9 +85,9 @@ Implemented first-slice resources:
 - Template versions.
 - Generation requests.
 - Generated document metadata.
-- Audit events for a request or resource.
+- Audit events for a generation request.
 
-The API should use validation at the boundary and Problem Details-style error responses for invalid input, missing resources, invalid state transitions, and conflicts.
+The API should use validation at the boundary and Problem Details-style error responses for invalid input and missing resources. Invalid state transitions and conflicts are reserved for future mutation endpoints.
 
 ## Persistence
 
