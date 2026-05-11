@@ -39,15 +39,15 @@ Suggested relationships:
 
 Example endpoints for the first implementation slice:
 
-- `POST /api/v1/templates`
-- `POST /api/v1/templates/{templateId}/versions`
+- `GET /api/v1/templates`
 - `GET /api/v1/templates/{templateId}`
+- `GET /api/v1/templates/{templateId}/versions`
 - `POST /api/v1/generation-requests`
 - `GET /api/v1/generation-requests/{requestId}`
 - `GET /api/v1/generation-requests/{requestId}/audit-events`
 - `GET /api/v1/generated-documents/{documentId}`
 
-The exact endpoint names can change during implementation, but the important idea is that requests and generated documents are first-class resources.
+Template administration endpoints are deliberately deferred; seeded templates are enough for the first credible generation workflow.
 
 ## Status lifecycle
 
@@ -106,4 +106,4 @@ I would avoid adding Kafka, Redis, Kubernetes, object storage, authentication, o
 
 ## Honest current-state note
 
-This repository was copied from a previous Spring Boot task. The current documentation establishes the new Document Generator direction first. The Java implementation will be migrated in a later step so the code changes can be deliberate and reviewable.
+The first backend slice is implemented and buildable: it uses seeded template versions, synchronous demo generation, deterministic metadata, and audit events. Real rendering, storage, authentication, queues, and frontend work remain future production extensions.

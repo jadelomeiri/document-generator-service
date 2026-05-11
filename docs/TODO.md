@@ -9,60 +9,61 @@ This TODO guides the migration from the previous Spring Boot task into the Docum
 - [x] Create decision log with trade-offs and alternatives.
 - [x] Create presentation notes for the whiteboard discussion.
 - [x] Create implementation TODO list.
-- [x] Leave Java code unchanged during documentation foundation.
+- [x] Completed the documentation foundation before starting Java migration.
 
 ## Phase 1: Repository alignment before Java migration
 
-- [ ] Review existing package names, application names, and configuration for legacy domain wording.
-- [ ] Decide whether to preserve useful infrastructure from the previous task, such as Gradle, Docker Compose, Flyway, Testcontainers, OpenAPI, and CI.
-- [ ] Update non-code documentation that still refers to the old domain where it would confuse the new exercise.
+- [x] Review existing package names, application names, and configuration for legacy domain wording.
+- [x] Decide whether to preserve useful infrastructure from the previous task, such as Gradle, Docker Compose, Flyway, Testcontainers, OpenAPI, and CI.
+- [x] Update non-code documentation that still refers to the old domain where it would confuse the new exercise.
 - [ ] Confirm local build still works before domain code changes.
 
 ## Phase 2: Domain and persistence design
 
-- [ ] Define entities for document templates.
-- [ ] Define immutable template versions.
-- [ ] Define generation requests with explicit statuses.
-- [ ] Define generated document metadata.
-- [ ] Define append-only audit events.
-- [ ] Add Flyway migrations for the document generator schema.
-- [ ] Remove or replace legacy music-domain migrations only when the Java migration starts.
+- [x] Define entities for document templates.
+- [x] Define immutable template versions.
+- [x] Define generation requests with explicit statuses.
+- [x] Define generated document metadata.
+- [x] Define append-only audit events.
+- [x] Add Flyway migrations for the document generator schema.
+- [x] Remove or replace legacy previous-domain migrations only when the Java migration starts.
 
 ## Phase 3: API implementation
 
-- [ ] Add request and response DTOs for templates.
-- [ ] Add request and response DTOs for template versions.
-- [ ] Add request and response DTOs for generation requests.
-- [ ] Add request and response DTOs for generated document metadata.
-- [ ] Add validation for required fields, payload shape, and status transitions.
-- [ ] Add Problem Details-style error responses.
-- [ ] Add OpenAPI documentation for the new API.
+- [x] Add request and response DTOs for templates.
+- [x] Add request and response DTOs for template versions.
+- [x] Add request and response DTOs for generation requests.
+- [x] Add request and response DTOs for generated document metadata.
+- [x] Add validation for required fields.
+- [ ] Add deeper payload-shape validation and explicit invalid status-transition tests if/when mutation endpoints are added.
+- [x] Add Problem Details-style error responses.
+- [x] Preserve SpringDoc OpenAPI for the new API.
 
 ## Phase 4: Business behaviour
 
-- [ ] Implement template creation.
-- [ ] Implement template version creation and activation rules.
-- [ ] Implement generation request creation.
-- [ ] Implement request status transitions.
-- [ ] Implement a simple generation boundary that produces metadata without a real renderer.
-- [ ] Implement audit event creation for lifecycle changes.
-- [ ] Keep document bytes and external storage out of scope for the first slice.
+- [ ] Implement template creation if template administration becomes in scope. Current first slice lists seeded templates only.
+- [ ] Implement template version creation and activation rules if template administration becomes in scope.
+- [x] Implement generation request creation.
+- [x] Implement request status transitions.
+- [x] Implement a simple generation boundary that produces metadata without a real renderer.
+- [x] Implement audit event creation for lifecycle changes.
+- [x] Keep document bytes and external storage out of scope for the first slice.
 
 ## Phase 5: Testing
 
-- [ ] Add unit tests for status transition rules.
-- [ ] Add service tests for audit event creation.
-- [ ] Add API tests for validation failures and happy paths.
-- [ ] Add repository/integration tests using PostgreSQL/Testcontainers where useful.
-- [ ] Run the full Gradle build before committing Java changes.
+- [ ] Add unit tests for status transition rules if more lifecycle branches are introduced.
+- [x] Add integration coverage for audit event creation.
+- [x] Add API tests for validation failures and happy paths.
+- [x] Add repository/integration tests using PostgreSQL/Testcontainers where useful.
+- [x] Run the full Gradle build before committing Java changes.
 
 ## Phase 6: Production-minded polish
 
-- [ ] Add actuator health checks if not already retained from the previous task.
-- [ ] Confirm Docker Compose supports local development.
-- [ ] Confirm API examples are documented.
+- [x] Retain Spring Boot Actuator support from the previous task.
+- [x] Confirm Docker Compose supports local PostgreSQL development.
+- [x] Confirm API examples are documented.
 - [ ] Update presentation notes with implemented endpoints and trade-offs.
-- [ ] Update README with accurate run instructions after the Java migration.
+- [x] Update README with accurate run instructions after the Java migration.
 
 ## Deliberately out of scope for now
 

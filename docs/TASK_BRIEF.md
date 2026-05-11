@@ -28,7 +28,7 @@ The frontend itself is out of scope. The flow is documented to show how the back
 
 ## Core domain concepts
 
-The planned backend model has five first-class concepts:
+The backend model has five first-class concepts:
 
 - **Document template**: A named template definition for a business document.
 - **Template version**: An immutable version of a template used by generation requests.
@@ -67,4 +67,4 @@ These are valid production topics, but for this exercise they should be treated 
 
 ## Current repository state
 
-The repository was copied from a previous Spring Boot technical task. The existing Java application has not yet been removed or replaced. This documentation foundation defines the new direction before Java code changes begin.
+The repository now contains the first document-generator backend slice: seeded templates and versions, a synchronous demo generation workflow, generated document metadata, request audit events, Flyway schema, REST APIs, and Testcontainers-backed integration tests.

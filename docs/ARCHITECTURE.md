@@ -2,22 +2,21 @@
 
 ## Current state
 
-This repository is in a documentation-first migration phase for the Document Generator Service. The Java implementation has not been migrated yet, so this document describes the intended backend architecture rather than claiming completed runtime behaviour.
+The repository now contains the first backend slice of the Document Generator Service. It provides PostgreSQL/Flyway persistence, seeded templates, synchronous demo generation, generated document metadata, audit events, REST APIs, Problem Details-style errors, and Testcontainers-backed integration tests.
 
-The goal is a small, production-minded Spring Boot backend for a fintech/lending document generator. It should be straightforward to run, test, review, and explain in an interview.
+The goal remains a small, production-minded Spring Boot backend for a fintech/lending document generator. It should be straightforward to run, test, review, and explain in an interview.
 
 ## Architectural style
 
 Use a modular monolith with clear package boundaries rather than starting with microservices.
 
-Expected modules or package areas:
+Implemented package areas:
 
-- Template management.
-- Template version management.
-- Generation request lifecycle.
-- Generated document metadata.
-- Audit events.
-- Shared API/error handling support.
+- `template` for template and template-version persistence/API.
+- `generation` for request lifecycle orchestration/API.
+- `document` for generated document metadata/API.
+- `audit` for audit event persistence and request audit history.
+- `common` for shared API and error handling support.
 
 This keeps the first implementation simple while still leaving clean seams for future extraction if the system grows.
 
@@ -34,7 +33,7 @@ For the first implementation, this flow can run synchronously. The explicit requ
 
 ## Domain model
 
-The intended domain model has five first-class concepts. They are listed separately because template versioning, request lifecycle, generated metadata, and audit history should not be collapsed into one generic document record.
+The domain model has five first-class concepts. They are listed separately because template versioning, request lifecycle, generated metadata, and audit history should not be collapsed into one generic document record.
 
 ### Document template
 
@@ -80,7 +79,7 @@ Audit events should include enough context to support operational review: event 
 
 The API should expose request/response DTOs rather than persistence entities.
 
-Expected first-slice resources:
+Implemented first-slice resources:
 
 - Templates.
 - Template versions.
@@ -104,9 +103,9 @@ Important persistence expectations:
 
 ## Rendering boundary
 
-The first implementation should not integrate a real PDF or DOCX rendering engine.
+The first implementation does not integrate a real PDF or DOCX rendering engine.
 
-Instead, use a small generation service boundary that can produce deterministic metadata for the demo and can later be replaced by a real renderer. This keeps the first slice focused on lifecycle, persistence, auditability, and API design.
+Instead, it uses a small generation service boundary that produces deterministic metadata for the demo and can later be replaced by a real renderer. This keeps the first slice focused on lifecycle, persistence, auditability, and API design.
 
 ## Frontend relationship
 

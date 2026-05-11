@@ -1,6 +1,6 @@
 # Production Readiness
 
-This document prioritises production-minded work for the Document Generator Service. It is a planning guide for the migration; it does not claim that the Java implementation has already been converted.
+This document prioritises production-minded work for the Document Generator Service. The first backend slice has now been implemented; this file separates what is complete from useful follow-up work.
 
 The goal is to keep the system small enough for an interview demo while showing the right instincts for fintech/lending software: traceability, versioning, clear state, validation, and testability.
 
@@ -10,7 +10,7 @@ The goal is to keep the system small enough for an interview demo while showing 
 - **P1**: Useful production-minded polish once P0 is complete.
 - **P2**: Future production improvements to discuss, not build unless explicitly requested.
 
-## P0: First credible backend slice
+## P0: First credible backend slice (implemented)
 
 ### Domain and persistence
 
@@ -31,7 +31,7 @@ P0 starts with the same five first-class concepts used across the design docs:
 - Jakarta Validation for API inputs.
 - Problem Details-style errors for validation failures, missing resources, invalid state transitions, and conflicts.
 - Clear endpoint names for templates, template versions, generation requests, generated document metadata, and audit events.
-- Pagination for list endpoints that can grow, especially request and audit history.
+- Pagination for list endpoints that can grow, especially request and audit history. The first slice only exposes small seeded template lists and per-request audit history; broader request listing remains out of scope.
 
 ### Business rules
 
@@ -44,11 +44,9 @@ P0 starts with the same five first-class concepts used across the design docs:
 
 ### Testing
 
-- Unit tests for status transition rules.
-- Service tests for audit event creation.
-- API tests for validation errors and happy paths.
-- Persistence/integration tests for schema constraints and repository behaviour where useful.
-- Full Gradle build before Java changes are considered complete.
+- Focused tests for the generation workflow, generated document metadata, audit event creation, and missing template-version errors.
+- Testcontainers-backed PostgreSQL integration tests for the API and persistence path.
+- Full Gradle build before Java changes are considered complete when dependency downloads are available.
 
 ### Documentation
 
@@ -124,8 +122,8 @@ These are valid production topics but should remain future discussion points unl
 
 ## Readiness checklist before presenting
 
-- [ ] Documentation states clearly what is implemented and what is planned.
-- [ ] No stale domain wording from the previous task remains in useful docs.
-- [ ] Java migration is not started until the documentation direction is accepted.
-- [ ] First implementation plan stays focused on templates, versions, requests, generated metadata, and audit events.
-- [ ] P2 ideas are described as future improvements, not part of the first build.
+- [x] Documentation states clearly what is implemented and what is planned.
+- [x] No stale domain wording from the previous task remains in useful docs.
+- [x] Java migration has started with the first backend slice.
+- [x] First implementation stays focused on templates, versions, requests, generated metadata, and audit events.
+- [x] P2 ideas are described as future improvements, not part of the first build.
