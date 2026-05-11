@@ -1,270 +1,129 @@
-# Music Metadata Service
+# Document Generator Service
 
-A production-minded Java/Spring Boot take-home implementation of a music metadata API for a streaming-platform-like product. The service models canonical artists, realistic artist aliases, and artist tracks, with a deterministic Artist of the Day endpoint suitable for a homepage experience.
+A small, production-minded Spring Boot backend demo for an LDMS Senior Java Engineer final interview whiteboard exercise: **Design a Document Generator**.
 
-The implementation is intentionally scoped: it is more than toy CRUD, but avoids unnecessary platform complexity such as authentication, messaging, search infrastructure, Kubernetes, or frontend work.
+This repository was copied from a previous Spring Boot technical task and is being refocused into a fintech/lending document generation service. The first step is this documentation foundation. The existing Java application has not been replaced yet, so the codebase may still contain legacy music-metadata implementation details until the backend is intentionally migrated.
 
-## 1. Project overview
+## Goal
 
-The service exposes a versioned REST API for:
+Model the backend of a document generator used in a lending or fintech context. The service should show how a backend can safely manage document templates, accept document generation requests, track generated document metadata, and retain an audit trail for operational and compliance review.
 
-- managing artists with stable UUID identity and a primary display name
-- modelling aliases as separate records linked to the canonical artist
-- adding and retrieving tracks for an artist
-- selecting a deterministic, fair, cyclical Artist of the Day using UTC date and canonical artists only
+The aim is not to build a full enterprise document platform. The target is a focused, interview-friendly service that demonstrates senior engineering judgement: clear boundaries, auditability, versioning, request status tracking, testability, and API design.
 
-It uses PostgreSQL as the source of truth, Flyway for schema migrations, Spring validation for API contracts, RFC 9457-style Problem Details responses for common API errors, lightweight HATEOAS links for discoverability, and OpenAPI/Swagger for interactive API exploration.
+## Intended domain model
 
-## 2. Implemented features
+The planned backend will focus on four concepts:
 
-- Artist lifecycle:
-  - create an artist
-  - fetch an artist by UUID
-  - update an artist primary name
-- Artist alias management:
-  - add an alias to an artist
-  - list aliases for an artist
-  - enforce aliases as metadata on the canonical artist rather than separate artists
-- Track catalogue management:
-  - add tracks to an artist
-  - list tracks with bounded pagination (`page`, `size`, max size `100`)
-  - normalise optional metadata such as blank genre and ISRC casing
-  - reject duplicate ISRC values with `409 Conflict`
-- Homepage support:
-  - deterministic Artist of the Day
-  - aliases excluded from the rotation so artists with many aliases are not overrepresented
-- API quality:
-  - request DTO validation with Jakarta Validation
-  - Problem Details-style error responses for validation, missing artists, duplicates, and invalid UUIDs
-  - lightweight `_links` responses using Spring HATEOAS
-  - OpenAPI / Swagger UI
-- Runtime and delivery:
-  - PostgreSQL schema managed by Flyway
-  - Dockerfile and Docker Compose support
-  - environment-specific Spring profiles (`local`, `prod`)
-  - Actuator health, liveness/readiness probes, and Prometheus metrics
-  - JUnit 5 and Testcontainers-backed integration tests
-  - Checkstyle wired into the Gradle build
-  - GitHub Actions CI running the full build
-  - Dependabot for Gradle and GitHub Actions updates
+| Concept | Purpose |
+| --- | --- |
+| Document template | A named, versioned template such as loan agreement, disclosure pack, statement, or offer letter. |
+| Generation request | A request to create a document from a specific template version and input payload. |
+| Generated document metadata | Metadata about the produced document, such as document id, status, checksum, storage reference, timestamps, and requester context. |
+| Audit event | Append-only events recording important lifecycle actions for templates, requests, and generated documents. |
 
-## 3. Tech stack
+The backend is the source of truth for request state, generated document metadata, template versions, and audit history.
 
-- Java 25
-- Spring Boot 4
-- Spring Web MVC
+## What is implemented today
+
+Implemented today:
+
+- Documentation foundation for the new Document Generator direction.
+- Existing Spring Boot project structure, build tooling, Docker support, database migration setup, tests, and CI inherited from the previous task.
+
+Not implemented yet:
+
+- Document template APIs.
+- Template version persistence.
+- Document generation request APIs.
+- Request status workflow.
+- Generated document metadata persistence.
+- Audit event persistence and APIs.
+- Document rendering or file storage integration.
+
+The existing Java code is deliberately left untouched at this stage. It will be migrated in later steps after the design direction is documented.
+
+## Planned backend capabilities
+
+The first production-minded slice should include:
+
+- Manage document templates and immutable template versions.
+- Create document generation requests against an explicit template version.
+- Track request status, for example `RECEIVED`, `VALIDATED`, `GENERATING`, `COMPLETED`, and `FAILED`.
+- Store generated document metadata without exposing implementation details of the storage provider.
+- Record audit events for meaningful lifecycle changes.
+- Provide clear REST APIs with validation and Problem Details-style errors.
+- Use PostgreSQL as the source of truth and Flyway for schema migrations.
+- Add tests around validation, state transitions, audit creation, and API behaviour.
+
+## Frontend scope
+
+A frontend will not be implemented for this interview demo.
+
+The expected frontend flow will be documented instead:
+
+1. An operations or lending user selects a document template.
+2. The UI shows the active template version and required input fields.
+3. The user submits a generation request.
+4. The UI polls or refreshes request status.
+5. When completed, the UI shows generated document metadata and a download/open action if supported by the backend.
+6. Audit history is available to authorised operational users.
+
+The backend remains the source of truth for statuses, template versions, generated metadata, and audit events. The UI should not infer lifecycle state independently.
+
+## Deliberately out of scope
+
+To keep the exercise small and focused, these are intentionally out of scope unless explicitly requested later:
+
+- Full frontend implementation.
+- User accounts, login, or authentication flows.
+- Complex role-based access control.
+- Real PDF/DOCX rendering engine integration.
+- External object storage integration such as S3.
+- Kafka, SQS, SNS, or event streaming.
+- Redis or distributed caching.
+- Elasticsearch/OpenSearch.
+- Kubernetes or infrastructure-as-code.
+- Full workflow orchestration.
+- Complex credit, underwriting, or legal-document modelling.
+
+These can be discussed as production extensions, but they should not distract from the core backend design.
+
+## Technology direction
+
+The intended stack remains a pragmatic JVM backend stack:
+
+- Java
+- Spring Boot
+- Spring Web
 - Spring Data JPA
-- Spring HATEOAS
 - Jakarta Validation
 - PostgreSQL
 - Flyway
 - Spring Boot Actuator
-- Micrometer Prometheus registry
-- SpringDoc OpenAPI / Swagger UI
+- SpringDoc OpenAPI
 - JUnit 5
 - Testcontainers
-- Gradle
-- Checkstyle
-- Docker / Docker Compose
-- GitHub Actions CI
-- Dependabot
+- Docker Compose for local support
 
-## 4. API overview with key endpoints
+Version details will be confirmed during implementation rather than over-specified in documentation before the code migration.
 
-Base path: `/api/v1`
+## Local development
 
-| Method | Endpoint | Purpose |
-| --- | --- | --- |
-| `POST` | `/artists` | Create a canonical artist. |
-| `GET` | `/artists/{artistId}` | Fetch an artist by UUID. |
-| `PATCH` | `/artists/{artistId}` | Update an artist primary display name. |
-| `POST` | `/artists/{artistId}/aliases` | Add an alias to an artist. |
-| `GET` | `/artists/{artistId}/aliases` | List aliases for an artist. |
-| `POST` | `/artists/{artistId}/tracks` | Add a track to an artist catalogue. |
-| `GET` | `/artists/{artistId}/tracks?page=0&size=50` | List tracks for an artist with bounded pagination. |
-| `GET` | `/homepage/artist-of-the-day` | Fetch the deterministic Artist of the Day. |
-
-Example request bodies:
-
-```json
-{ "primaryName": "Massive Attack" }
-```
-
-```json
-{ "alias": "Massive" }
-```
-
-```json
-{
-  "title": "Teardrop",
-  "genre": "Trip hop",
-  "lengthSeconds": 330,
-  "isrc": "GBBKS9800168"
-}
-```
-
-Swagger UI is the easiest way to explore the full request and response shapes locally.
-
-## 5. Running locally with Gradle + Docker Compose PostgreSQL
-
-Start PostgreSQL only:
+The inherited project currently uses Gradle:
 
 ```bash
-docker compose up -d postgres
+./gradlew clean build
 ```
 
-Run the application from Gradle using the `local` Spring profile:
+Local runtime commands will be updated once the Java implementation is migrated from the previous task to the document generator domain.
 
-```bash
-SPRING_PROFILES_ACTIVE=local ./gradlew bootRun
-```
+## Documentation map
 
-The `local` profile defaults to the Docker Compose PostgreSQL settings:
+- `docs/TASK_BRIEF.md` - concise interview exercise brief and scope.
+- `docs/DECISIONS.md` - design decisions, trade-offs, and alternatives considered.
+- `docs/PRESENTATION_NOTES.md` - whiteboard / final interview talking points.
+- `docs/TODO.md` - implementation plan and sequencing.
 
-- `SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/music_metadata`
-- `SPRING_DATASOURCE_USERNAME=music`
-- `SPRING_DATASOURCE_PASSWORD=music`
+## Current status
 
-These values can still be overridden with environment variables when needed.
-
-Run the full build and test gate locally:
-
-```bash
-./gradlew clean build --no-daemon
-```
-
-## 6. Running full app + PostgreSQL with Docker Compose
-
-Build and run the Spring Boot application and PostgreSQL together:
-
-```bash
-docker compose up --build
-```
-
-The Compose `app` service uses the `prod` Spring profile and supplies datasource environment variables pointing at the Compose PostgreSQL service. These are local development defaults only, not production secrets.
-
-Stop the stack:
-
-```bash
-docker compose down
-```
-
-The Docker image build intentionally runs `./gradlew clean bootJar --no-daemon` to package the runnable application. CI owns the full `./gradlew clean build --no-daemon` quality gate, including Checkstyle and Testcontainers-backed tests.
-
-## 7. Testing and CI
-
-Local quality gate:
-
-```bash
-./gradlew clean build --no-daemon
-```
-
-This runs:
-
-- Java compilation
-- Checkstyle
-- unit and integration tests
-- Spring Boot application context checks
-- Testcontainers-backed PostgreSQL integration tests
-
-CI is configured with GitHub Actions for pull requests and pushes to `main`. The workflow uses Java 25 and runs the same Gradle clean build command. Dependabot is configured for weekly Gradle dependency and GitHub Actions update checks.
-
-## 8. Observability / useful URLs
-
-When the app is running on the default port:
-
-- Swagger UI: <http://localhost:8080/swagger-ui/index.html>
-- Actuator health: <http://localhost:8080/actuator/health>
-- Liveness probe: <http://localhost:8080/actuator/health/liveness>
-- Readiness probe: <http://localhost:8080/actuator/health/readiness>
-- Prometheus metrics: <http://localhost:8080/actuator/prometheus>
-
-The common and `prod` configurations expose only `health`, `info`, and `prometheus`. The `local` profile also exposes `metrics` and shows health details for easier development troubleshooting.
-
-## 9. Architecture summary
-
-The application is a package-by-feature modular monolith:
-
-```text
-com.iceservices.musicmetadata
-├── artist      # Artist and ArtistAlias domain, repository, service, API DTOs/controllers
-├── track       # Track domain, repository, service, API DTOs/controllers
-├── homepage    # Artist of the Day use case and homepage API
-└── common      # shared API link type, error handling, time configuration
-```
-
-Each feature follows a simple controller → service → repository flow, with PostgreSQL as the durable store. JPA entities are kept behind the API layer and are not exposed directly from controllers; request and response records define the API contract.
-
-The database model is deliberately focused:
-
-- `Artist`: stable canonical identity and primary display name
-- `ArtistAlias`: alternate names for the same artist identity
-- `Track`: track metadata belonging to exactly one artist
-
-Flyway owns schema creation and Hibernate is configured to validate rather than auto-create the database schema.
-
-## 10. Key decisions / trade-offs
-
-- **Modular monolith over microservices**: the domain is small and tightly related, so a single deployable keeps the solution understandable and operable for the take-home scope.
-- **Explicit alias records**: aliases are realistic catalogue metadata and some artists may have many aliases, so they are modelled separately instead of as a string column on `Artist`.
-- **Aliases excluded from Artist of the Day**: the rotation is over canonical artists only, preventing artists with more aliases from receiving extra weighting.
-- **Deterministic Artist of the Day**: selection uses UTC date, an injectable `Clock`, stable ordering, and modulo rotation. This is fair, repeatable, and testable without introducing a scheduler for the take-home implementation.
-- **Offset pagination for tracks**: simple Spring Data pagination is sufficient here and prevents unbounded catalogue responses. Cursor/keyset pagination is documented as a future option for very large catalogues.
-- **Flyway over Hibernate auto-DDL**: schema changes are explicit, reviewable, and repeatable across environments.
-- **Problem Details-style errors**: common failure cases return structured error bodies rather than ad hoc strings.
-- **Docker image builds package only**: the image build uses `bootJar` for speed and reproducibility, while CI is the authoritative full clean build/test gate.
-
-More detailed reasoning is captured in [Architecture](docs/ARCHITECTURE.md), [Decision Log](docs/DECISIONS.md), and [Production Readiness Plan](docs/PRODUCTION_READINESS.md). Current task status is tracked in [TODO](docs/TODO.md). Reviewer-friendly Mermaid diagrams and presentation notes are available in [Architecture Diagrams and Presentation Notes](docs/DIAGRAMS.md), and supporting presentation slides are available in [docs/presentation](docs/presentation/).
-
-## 11. Production-readiness notes
-
-Implemented production-minded foundations:
-
-- Flyway migrations and schema validation
-- PostgreSQL-backed persistence
-- environment-specific configuration with no committed production credential fallbacks in `prod`
-- validation at the API boundary
-- Problem Details-style error handling
-- Actuator health/probes and Prometheus metrics
-- Dockerfile and Docker Compose local runtime support
-- GitHub Actions CI running the full Gradle build
-- Testcontainers integration tests against PostgreSQL
-- Checkstyle for lightweight code hygiene
-- Dependabot update automation
-
-Notable production considerations intentionally left for future work:
-
-- authentication and authorization for write operations
-- managed secrets and production deployment infrastructure
-- rate limiting and edge protection
-- alerting, dashboards, tracing, and runbooks
-- precomputing or caching Artist of the Day for very high read traffic
-- cursor/keyset pagination for extremely large catalogues
-- search infrastructure for fuzzy artist, alias, or track discovery
-
-## 12. Future improvements / deliberate non-goals
-
-Deliberate non-goals for this submission:
-
-- no authentication or user accounts
-- no frontend; Swagger UI is used for API exploration
-- no Redis or distributed cache
-- no OpenSearch/Elasticsearch
-- no Kafka/SNS/SQS or event-driven integration
-- no Kubernetes or infrastructure-as-code deployment setup
-- no Spring AI
-- no complex copyright, work, rightsholder, or royalty modelling
-
-Reasonable future improvements, depending on product needs and traffic profile:
-
-- OAuth2/OIDC resource-server support and scopes for write APIs
-- daily cached or precomputed Artist of the Day
-- cursor/keyset pagination for high-volume catalogues
-- fuzzy search across artists, aliases, and tracks
-- metadata change events for downstream consumers
-- production deployment on managed compute with managed PostgreSQL
-- SLOs, dashboards, alerts, tracing, and incident runbooks
-
-## 13. AI assistance
-
-I used Codex/AI assistance as a development accelerator for scaffolding, review, documentation, and test suggestions. I reviewed, adjusted, tested, and committed changes incrementally, and I remained responsible for the design decisions, trade-offs, testing strategy, and final implementation.
+This repository is in the **documentation foundation** phase for the Document Generator exercise. Java code changes are intentionally deferred.
