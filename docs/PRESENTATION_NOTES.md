@@ -4,7 +4,7 @@ These notes support the LDMS Senior Java Engineer final interview discussion. Th
 
 ## One-minute summary
 
-I would build a small Spring Boot backend that treats document generation as a durable business process, not just a file-rendering utility.
+I built a small Spring Boot backend that treats document generation as a durable business process, not just a file-rendering utility.
 
 The backend owns templates, immutable template versions, generation requests, generated document metadata, and audit events. The frontend can initiate and inspect the process, but the backend remains the source of truth for status, version selection, metadata, and audit history.
 
@@ -13,7 +13,7 @@ The backend owns templates, immutable template versions, generation requests, ge
 1. An operations or lending user selects a document template in the frontend.
 2. The frontend submits a generation request with a template/version and business payload.
 3. The backend validates the request and records it as `RECEIVED` or `VALIDATED`.
-4. The generation service creates a document or delegates to a renderer boundary.
+4. The generation service creates deterministic generated-document metadata through a rendering boundary that could later be replaced by a real PDF/DOCX renderer.
 5. The backend records generated document metadata, such as checksum and storage reference.
 6. The request moves to `COMPLETED` or `FAILED`.
 7. Each important lifecycle step creates an audit event.

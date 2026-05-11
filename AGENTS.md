@@ -49,7 +49,7 @@ Keep the model focused on the document generation lifecycle:
 - `DocumentTemplate`: a named template family, such as a loan agreement or customer statement.
 - `DocumentTemplateVersion`: an immutable version of a template used by generation requests so historical outputs remain traceable.
 - `DocumentGenerationRequest`: a durable request to generate a document from a specific template version and input payload.
-- `GeneratedDocument`: metadata about the generated output, including content type, checksum, storage reference, status, timestamps, and template version linkage.
+- `GeneratedDocument`: metadata about the generated output, including content type, checksum, storage reference, timestamps, and template version linkage.
 - `AuditEvent`: append-only lifecycle events that make important request and document actions explainable.
 
 ## Domain Rules and Priorities

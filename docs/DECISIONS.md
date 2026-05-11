@@ -155,3 +155,26 @@ This document records the initial design direction for the Document Generator Se
 
 - Keep only documentation and defer Java changes. Rejected because the interview demo needs a buildable backend slice.
 - Build template administration, auth, rendering, storage, and queues immediately. Rejected because that would over-expand the exercise beyond the core lifecycle.
+
+## 15. Defer administration and workflow controls from the first slice
+
+**Decision:** Keep template administration, richer payload schemas, retries, cancellation, regeneration, and broader workflow controls out of the first implementation slice.
+
+**Why:** The first slice is meant to prove the durable generation lifecycle: choose a known template version, create a request, produce deterministic metadata, and record audit events. Administration screens, schema authoring, and operational workflow controls are useful production topics, but they would add API and state-machine surface area before the core traceability path is clear.
+
+**Alternatives considered:**
+
+- Build template CRUD and schema management immediately. Rejected because seeded immutable template versions are enough to demonstrate version traceability.
+- Add retry, cancel, and regenerate endpoints in the first pass. Rejected because those rules need more product detail around idempotency, permissions, and renderer failure handling.
+- Model a broad workflow engine. Rejected because it would distract from the small backend lifecycle this demo needs to explain.
+
+## 16. Keep local PostgreSQL settings profile-specific
+
+**Decision:** Local PostgreSQL datasource settings live behind the `local` Spring profile, so local runtime commands must start the app with `--spring.profiles.active=local`.
+
+**Why:** The default configuration should stay environment-neutral, while the local profile gives developers a predictable Docker Compose PostgreSQL connection for `bootRun`. This avoids baking local credentials into the default runtime path.
+
+**Alternatives considered:**
+
+- Put local PostgreSQL settings in the default application configuration. Rejected because defaults should not assume one developer machine or runtime environment.
+- Require every developer to pass datasource environment variables for local smoke tests. Rejected because it makes the interview demo harder to run and explain.
