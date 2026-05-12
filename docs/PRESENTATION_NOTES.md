@@ -91,6 +91,14 @@ This is an interview demo. The strongest version is one that is easy to run, tes
 
 I would avoid adding Kafka, Redis, Kubernetes, object storage, authentication, or a real rendering engine until the core lifecycle is implemented and tested. Those can be discussed as production extensions.
 
+## Future slices
+
+- Slice 1: Implemented — seeded templates, generation requests, generated metadata, and audit events.
+- Slice 2: Template administration — create templates, create template versions, draft/active/retired states, and approval workflow.
+- Slice 3: Payload schemas — template-specific input schema, payload validation, and better client form metadata.
+- Slice 4: Real rendering and storage — PDF/DOCX renderer, object storage, download authorisation, and retention policy.
+- Slice 5: Async workflow — queue/worker, retries, cancel/regenerate, and notifications.
+
 ## Production extensions to mention if asked
 
 - Asynchronous generation with a queue or job worker.

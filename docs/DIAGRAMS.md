@@ -140,6 +140,21 @@ sequenceDiagram
     API-->>UI: Generation request response
 ```
 
+## Future slice roadmap
+
+```mermaid
+flowchart LR
+    slice1["Slice 1: Implemented\nSeeded templates\nGeneration requests\nGenerated metadata\nAudit events"]
+    slice2["Slice 2: Template administration\nCreate templates\nCreate template versions\nDraft/active/retired states\nApproval workflow"]
+    slice3["Slice 3: Payload schemas\nTemplate-specific input schema\nPayload validation\nBetter client form metadata"]
+    slice4["Slice 4: Real rendering and storage\nPDF/DOCX renderer\nObject storage\nDownload authorisation\nRetention policy"]
+    slice5["Slice 5: Async workflow\nQueue/worker\nRetries\nCancel/regenerate\nNotifications"]
+
+    slice1 --> slice2 --> slice3 --> slice4 --> slice5
+```
+
+The implemented slice starts with seeded active template versions so the first version stays focused on the core generation lifecycle: accepting requests, preserving template-version traceability, producing honest metadata, and recording audit events.
+
 ## Future production extensions
 
 ```mermaid
